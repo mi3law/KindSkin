@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KindSkin · Skin &amp; Mind Tracker</title>
+<meta name="description" content="KindSkin — an AP Capstone peer-research tracker exploring adolescent acne and its psycho-dermatological impact." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: { blush: '#FFF3F5', petal: '#FCE7F3' },
+        fontFamily: { sans: ['"Plus Jakarta Sans"', 'ui-rounded', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'] },
+        boxShadow: { soft: '0 1px 2px rgba(190,24,93,0.04), 0 10px 30px -14px rgba(190,24,93,0.16)' }
+      }
+    }
+  };
+</script>
+<style type="text/tailwindcss">
+  @layer components {
+    .card { @apply bg-white rounded-3xl border border-petal shadow-soft; }
+    .eyebrow { @apply text-[11px] font-bold uppercase tracking-[0.14em] text-pink-400; }
+    .btn-sky { @apply inline-flex items-center justify-center gap-2 rounded-full bg-sky-50 px-5 py-2.5 text-sm font-semibold text-sky-600 transition hover:bg-sky-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-not-allowed disabled:opacity-40; }
+    .btn-solid { @apply inline-flex items-center justify-center gap-2 rounded-full bg-sky-500 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-sky-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2; }
+    .btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-slate-500 transition hover:bg-pink-50 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-not-allowed disabled:opacity-30; }
+    .btn-mini { @apply inline-flex items-center gap-1.5 rounded-full border border-petal bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 transition hover:bg-pink-50 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300; }
+    .icon-btn { @apply grid h-9 w-9 place-items-center rounded-full border border-petal bg-white text-lg leading-none text-slate-500 transition hover:bg-pink-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-not-allowed disabled:opacity-30; }
+    .tab-btn { @apply flex-1 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold text-slate-500 transition hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 sm:flex-none; }
+    .tab-btn[aria-selected="true"] { @apply bg-sky-50 text-sky-600 shadow-sm hover:bg-sky-100; }
+    .chip { @apply inline-flex items-center gap-2 rounded-full border border-pink-100 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-pink-200 hover:bg-pink-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300; }
+    .chip[aria-pressed="true"] { @apply border-sky-300 bg-sky-50 text-sky-600 shadow-sm hover:bg-sky-100; }
+    .choice { @apply flex w-full items-center gap-3 rounded-2xl border border-pink-100 bg-white p-3.5 text-left text-slate-700 transition hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300; }
+    .choice[aria-pressed="true"] { @apply border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100; }
+    .choice-check { @apply grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 border-pink-200 bg-white transition; }
+    .choice[aria-pressed="true"] .choice-check { @apply border-sky-500 bg-sky-500; }
+    .placeholder-box { @apply rounded-2xl border border-dashed border-amber-300 bg-amber-50/80 px-4 py-3 font-mono text-[11.5px] leading-relaxed text-amber-800; }
+    .pill { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold; }
+  }
+</style>
+<style>
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+  body { background: #FFF3F5; }
+  .choice[aria-pressed="true"] .choice-check::after { content: '✓'; color: #fff; font-size: 12px; font-weight: 800; line-height: 1; }
+
+  /* Range sliders */
+  .ks-range { -webkit-appearance: none; appearance: none; height: 12px; border-radius: 999px; cursor: pointer;
+    background: linear-gradient(90deg, var(--c1), var(--c2)) no-repeat, #FCE7F3;
+    background-size: var(--fill) 100%, 100% 100%; outline: none; }
+  .ks-range:focus-visible { box-shadow: 0 0 0 4px #e0f2fe; }
+  .ks-range::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%;
+    background: #fff; border: 4px solid var(--c2); box-shadow: 0 4px 12px -2px rgba(15,23,42,.18); transition: transform .15s; }
+  .ks-range:active::-webkit-slider-thumb { transform: scale(1.12); }
+  .ks-range::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 4px solid var(--c2);
+    box-shadow: 0 4px 12px -2px rgba(15,23,42,.18); }
+  .ks-range::-moz-range-track { background: transparent; }
+
+  /* Stepper */
+  .step-track { transition: transform .55s cubic-bezier(.22,1,.36,1); }
+  #stepViewport { transition: height .35s ease; }
+
+  /* Motion */
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .rise { animation: rise .5s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes flashSky { 0%,100% { box-shadow: 0 0 0 0 rgba(56,189,248,0); } 50% { box-shadow: 0 0 0 7px rgba(56,189,248,.28); } }
+  .flash-sky { animation: flashSky 1.3s ease-in-out 3; }
+  @keyframes cardPulse { 0% { box-shadow: 0 0 0 0 rgba(244,114,182,.35); } 100% { box-shadow: 0 0 0 16px rgba(244,114,182,0); } }
+  .card-pulse { animation: cardPulse 1s ease-out 2; }
+  @keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .bar-grow { transform-origin: left; animation: barGrow .9s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(18px) scale(.98); } to { opacity: 1; transform: none; } }
+  .modal-in { animation: modalIn .32s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .fade-in { animation: fadeIn .25s ease both; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .toast-in { animation: toastIn .3s cubic-bezier(.22,1,.36,1) both; }
+  .bubble { animation: rise .45s cubic-bezier(.22,1,.36,1) both; }
+
+  #copeRing circle.progress { transition: stroke-dashoffset .25s linear; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  }
+  @media print {
+    .no-print { display: none !important; }
+    body { background: #fff; }
+    .card { box-shadow: none; }
+  }
+</style>
+</head>
+
+<body class="min-h-screen bg-blush font-sans text-slate-700 antialiased">
+<noscript>
+  <div style="padding:16px;background:#fef3c7;color:#92400e;text-align:center;font-family:sans-serif">KindSkin needs JavaScript enabled to save and analyse your check-ins.</div>
+</noscript>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header class="no-print sticky top-0 z-40 border-b border-petal bg-blush/85 backdrop-blur-md">
+  <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+    <button type="button" data-action="tab" data-tab="today" class="flex items-center gap-2.5 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300" aria-label="KindSkin home">
+      <span class="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-pink-300 to-rose-400 shadow-sm">
+        <svg viewBox="0 0 24 24" class="h-5 w-5 text-white" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.1C.9 8.6 2.9 4.5 6.6 4.5c2.1 0 3.6 1.1 4.4 2.6.8-1.5 2.3-2.6 4.4-2.6 3.7 0 5.7 4.1 4.2 7.4C19.5 16.4 12 21 12 21z"/></svg>
+      </span>
+      <span class="text-left">
+        <span class="block text-lg font-extrabold leading-tight tracking-tight text-slate-800">KindSkin</span>
+        <span class="block text-[11px] font-medium leading-tight text-slate-400">Skin &amp; mind, tracked kindly</span>
+      </span>
+    </button>
+
+    <nav class="order-last w-full sm:order-none sm:w-auto" aria-label="Sections">
+      <div role="tablist" class="flex gap-1 rounded-full border border-petal bg-white/80 p-1">
+        <button type="button" role="tab" id="tabbtn-today" aria-controls="tab-today" aria-selected="true" data-action="tab" data-tab="today" class="tab-btn">Today</button>
+        <button type="button" role="tab" id="tabbtn-report" aria-controls="tab-report" aria-selected="false" data-action="tab" data-tab="report" class="tab-btn">Monthly Report</button>
+        <button type="button" role="tab" id="tabbtn-scenarios" aria-controls="tab-scenarios" aria-selected="false" data-action="tab" data-tab="scenarios" class="tab-btn">Scenarios</button>
+      </div>
+    </nav>
+
+    <div id="streakPill"></div>
+  </div>
+</header>
+
+<main class="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6">
+
+  <!-- ═══════════════════════ TODAY TAB ═══════════════════════ -->
+  <section id="tab-today" role="tabpanel" aria-labelledby="tabbtn-today">
+
+    <!-- 7-day micro-calendar hub -->
+    <section class="card p-4 sm:p-6" aria-label="7-day calendar">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="eyebrow">Your week</p>
+          <p id="stripRange" class="mt-0.5 text-sm font-bold text-slate-700"></p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button type="button" data-action="strip-today" class="btn-sky !px-3.5 !py-1.5 text-xs">Today</button>
+          <button type="button" data-action="strip-prev" class="icon-btn" aria-label="Show previous week">‹</button>
+          <button type="button" id="stripNext" data-action="strip-next" class="icon-btn" aria-label="Show next week">›</button>
+        </div>
+      </div>
+      <div id="stripDays" class="mt-4 grid grid-cols-7 gap-1 sm:gap-3"></div>
+      <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] font-medium text-slate-400">
+        <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-sky-300"></span>Calm</span>
+        <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-pink-300"></span>Mild</span>
+        <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-rose-400"></span>Active flare</span>
+        <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full border-2 border-dashed border-sky-400"></span>Forecast watch day</span>
+      </div>
+    </section>
+
+    <div class="mt-6 flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:items-start">
+      <div class="contents lg:col-span-7 lg:flex lg:flex-col lg:gap-6">
+        <section id="promptCard" class="order-1 lg:order-none" aria-live="polite"></section>
+
+        <section id="formCard" class="card order-3 p-5 sm:p-7 lg:order-none" aria-labelledby="formTitle">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="eyebrow">Daily check-in</p>
+              <h2 id="formTitle" class="mt-0.5 text-xl font-extrabold text-slate-800"></h2>
+            </div>
+            <span id="formBadge"></span>
+          </div>
+          <div id="formBody" class="mt-5"></div>
+        </section>
+      </div>
+
+      <div class="contents lg:col-span-5 lg:flex lg:flex-col lg:gap-6">
+        <section id="forecastCard" class="card order-2 p-5 sm:p-6 lg:order-none" aria-labelledby="forecastTitle">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="eyebrow">Cycle forecast</p>
+              <h2 id="forecastTitle" class="mt-0.5 text-lg font-extrabold text-slate-800">What to Expect Next</h2>
+            </div>
+            <span id="forecastUpdated" class="rounded-full bg-blush px-3 py-1 text-[11px] font-semibold text-slate-400"></span>
+          </div>
+          <div id="forecastList" class="mt-4 space-y-3"></div>
+        </section>
+
+        <section id="recentCard" class="card order-4 p-5 sm:p-6 lg:order-none" aria-labelledby="recentTitle">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="eyebrow">Memory</p>
+              <h2 id="recentTitle" class="mt-0.5 text-lg font-extrabold text-slate-800">Recent check-ins</h2>
+            </div>
+            <span id="recentCount" class="text-xs font-semibold text-slate-400"></span>
+          </div>
+          <ul id="recentList" class="mt-4 space-y-1.5"></ul>
+          <div class="no-print mt-5 border-t border-pink-50 pt-4">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Your data</p>
+            <div class="mt-2 flex flex-wrap gap-2">
+              <button type="button" data-action="demo" class="btn-mini">✨ Load demo month</button>
+              <button type="button" data-action="export" class="btn-mini">⬇ Export JSON</button>
+              <button type="button" data-action="reset" class="btn-mini !text-rose-500">Reset all</button>
+            </div>
+            <p class="mt-2 text-[11px] leading-relaxed text-slate-400">Saved only in this browser under the localStorage key <code class="rounded bg-blush px-1 text-pink-500">kindSkinLogs</code>.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ REPORT TAB ═══════════════════════ -->
+  <section id="tab-report" role="tabpanel" aria-labelledby="tabbtn-report" hidden>
+    <section class="relative overflow-hidden rounded-3xl border border-petal bg-gradient-to-br from-white via-white to-sky-50 p-6 shadow-soft sm:p-8">
+      <div aria-hidden="true" class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-pink-100/70 blur-3xl"></div>
+      <div class="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <p class="eyebrow">Automated monthly trend report</p>
+            <span id="demoBadge" class="pill hidden border border-amber-200/60 bg-amber-50 text-amber-700">Includes demo data</span>
+          </div>
+          <h1 class="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-800 sm:text-3xl">KindSkin Monthly Report Insights</h1>
+          <p id="reportMeta" class="mt-1.5 text-sm text-slate-500"></p>
+        </div>
+        <div class="no-print flex items-center gap-2">
+          <button type="button" data-action="month-prev" class="icon-btn" aria-label="Previous month">‹</button>
+          <span id="reportMonthLabel" class="min-w-[9.5rem] rounded-full bg-sky-50 px-4 py-2 text-center text-sm font-bold text-sky-600"></span>
+          <button type="button" id="monthNext" data-action="month-next" class="icon-btn" aria-label="Next month">›</button>
+          <button type="button" data-action="print" class="btn-mini ml-1 hidden sm:inline-flex">🖨 Print</button>
+        </div>
+      </div>
+    </section>
+    <div id="reportBody" class="mt-6 space-y-6"></div>
+  </section>
+
+  <!-- ═══════════════════════ SCENARIOS TAB ═══════════════════════ -->
+  <section id="tab-scenarios" role="tabpanel" aria-labelledby="tabbtn-scenarios" hidden>
+    <section class="relative overflow-hidden rounded-3xl border border-petal bg-gradient-to-br from-white via-white to-amber-50 p-6 shadow-soft sm:p-8">
+      <div aria-hidden="true" class="pointer-events-none absolute -left-10 -bottom-16 h-48 w-48 rounded-full bg-sky-100/70 blur-3xl"></div>
+      <div class="relative flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+        <div class="max-w-2xl">
+          <p class="eyebrow">Adolescent psychological adaptive scenarios</p>
+          <h1 class="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-800 sm:text-3xl">Practise the moments that feel hardest</h1>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">Six real-life situations teens with acne describe again and again. Choose what you'd do — every path is okay to explore, and each one opens a short, research-informed reflection.</p>
+        </div>
+        <div class="w-full md:w-60">
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-500"><span>Your progress</span><span id="scenarioProgressText"></span></div>
+          <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-pink-50"><div id="scenarioProgressBar" class="h-full rounded-full bg-gradient-to-r from-sky-300 to-sky-500 transition-all duration-700" style="width:0%"></div></div>
+        </div>
+      </div>
+    </section>
+    <div id="scenarioRoot" class="mt-6"></div>
+  </section>
+</main>
+
+<!-- ═══════════════════════ MEDICAL GOVERNANCE FOOTER ═══════════════════════ -->
+<footer class="border-t border-petal bg-white/50">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <div class="card overflow-hidden">
+      <div class="border-b border-petal bg-gradient-to-r from-pink-50 via-white to-sky-50 px-6 py-6 sm:px-8">
+        <p class="eyebrow">Medical governance</p>
+        <h2 class="mt-1 text-xl font-extrabold text-slate-800">Research boundaries &amp; safety</h2>
+        <p class="mt-1 max-w-2xl text-sm text-slate-500">How KindSkin was built, what it measures, and — just as importantly — what it doesn't.</p>
+      </div>
+
+      <div class="grid gap-8 p-6 sm:p-8 md:grid-cols-3">
+        <div>
+          <div class="flex items-center gap-2"><span class="grid h-9 w-9 place-items-center rounded-xl bg-sky-50 text-lg" aria-hidden="true">🎓</span><h3 class="text-sm font-extrabold text-slate-800">Personal Passion Project CAPS</h3></div>
+          <ul class="mt-4 space-y-2.5 text-[13px] leading-relaxed text-slate-600">
+            <li class="flex gap-2"><span class="text-pink-300">●</span><span>Designed and built by highschool student trying to change the narrative of how acne in teenagers is viewed — <b>not</b> by a clinician. </span></li>
+            <li class="flex gap-2"><span class="text-pink-300">●</span><span>Intended for educational self-reflection by adolescents aged 13–18, ideally alongside a trusted adult.</span></li>
+            <li class="flex gap-2"><span class="text-pink-300">●</span><span>Forecasts and correlations describe <i>personal patterns in self-reported logs</i>, not proof of cause.</span></li>
+          </ul>
+          <div class="placeholder-box mt-4">[INSERT RESEARCH QUESTION, METHOD &amp; SCHOOL / IRB REVIEW STATUS HERE]</div>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-2"><span class="grid h-9 w-9 place-items-center rounded-xl bg-amber-50 text-lg" aria-hidden="true">📋</span><h3 class="text-sm font-extrabold text-slate-800">Measurement framework · CDLQI</h3></div>
+          <p class="mt-4 text-[13px] leading-relaxed text-slate-600">The <b>Children's Dermatology Life Quality Index (CDLQI)</b> is a validated questionnaire measuring how skin conditions affect young people's lives. KindSkin's emotional and social categories are <i>informed by</i> the life-quality domains it explores (symptoms, feelings, school, leisure, relationships, sleep) — KindSkin does <b>not</b> reproduce, administer, or score the CDLQI.</p>
+          <div class="placeholder-box mt-4">[INSERT CDLQI REFERENCE — e.g., Lewis-Jones, M. S., &amp; Finlay, A. Y. (1995). The Children's Dermatology Life Quality Index (CDLQI): initial validation and practical use. <i>British Journal of Dermatology</i>. VERIFY CITATION &amp; USAGE PERMISSIONS]</div>
+          <div class="placeholder-box mt-2">[INSERT ADDITIONAL CAPSTONE REFERENCES (APA 7) HERE]</div>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-2"><span class="grid h-9 w-9 place-items-center rounded-xl bg-pink-50 text-lg" aria-hidden="true">🔒</span><h3 class="text-sm font-extrabold text-slate-800">Data &amp; privacy</h3></div>
+          <ul class="mt-4 space-y-2.5 text-[13px] leading-relaxed text-slate-600">
+            <li class="flex gap-2"><span class="text-sky-300">●</span><span>Every check-in stays in <b>this browser's localStorage</b>. Nothing is uploaded, shared, or sold.</span></li>
+            <li class="flex gap-2"><span class="text-sky-300">●</span><span>No accounts, no analytics, no advertising.</span></li>
+            <li class="flex gap-2"><span class="text-sky-300">●</span><span>Clearing browser data or tapping <i>Reset all</i> erases history permanently — export first if you'd like a copy.</span></li>
+            <li class="flex gap-2"><span class="text-sky-300">●</span><span>Demo data is synthetic and clearly labelled; it is never research data.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mx-6 mb-6 rounded-3xl border-2 border-rose-200 bg-rose-50/70 p-5 sm:mx-8 sm:mb-8 sm:p-6" role="note" aria-label="Medical disclaimer">
+        <p class="text-sm font-extrabold uppercase tracking-wider text-rose-600">⚠ Important disclaimer — not medical advice</p>
+        <p class="mt-2 text-sm font-bold leading-relaxed text-slate-800">KindSkin is a student research prototype. It is NOT a medical device and does NOT diagnose, treat, or provide clinical, dermatological, or psychological advice. Forecasts and insights are illustrative estimates based only on your own self-reported logs and may be wrong. Always talk with a parent or guardian and a qualified healthcare professional — such as a dermatologist, pediatrician, or licensed mental-health professional — about your skin and your wellbeing.</p>
+        <p class="mt-3 text-sm leading-relaxed text-slate-600">If you're feeling overwhelmed, hopeless, or unsafe, please reach out to a trusted adult right away. In the US you can call or text <b>988</b> (Suicide &amp; Crisis Lifeline) any time; elsewhere, contact your local emergency number.</p>
+      </div>
+    </div>
+    <div class="mt-6 flex flex-col justify-between gap-2 text-xs text-slate-400 sm:flex-row">
+      <p>© <span id="year"></span> KindSkin · AP Capstone peer-research project · [INSERT STUDENT / TEAM NAME &amp; SCHOOL]</p>
+      <p>Built with care for teens 13–18 · v1.0</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Modal + toast roots -->
+<div id="modal" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+  <div class="fade-in absolute inset-0 bg-slate-900/30 backdrop-blur-sm"></div>
+  <div id="modalWrap" class="relative z-10 flex min-h-full items-end justify-center overflow-y-auto p-4 sm:items-center">
+    <div id="modalPanel" role="dialog" aria-modal="true" aria-labelledby="modalTitle" class="card modal-in w-full max-w-lg p-6 sm:p-7"></div>
+  </div>
+</div>
+<div id="toastRoot" class="pointer-events-none fixed inset-x-0 bottom-6 z-[60] flex flex-col items-center gap-2 px-4" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ════════════════════════════════════════════════════════════
+     CONSTANTS & CONTENT
+     ════════════════════════════════════════════════════════════ */
+  const STORAGE_KEY = 'kindSkinLogs';
+  const SCENARIO_KEY = 'kindSkinScenarioProgress';
+  const CALM_FLARE_MAX = 3;     // flare ≤ 3  → "calm" skin day
+  const ACTIVE_FLARE_MIN = 6;   // flare ≥ 6  → "active flare" day
+  const HIGH_STRESS = 7;        // stress ≥ 7 → triggers the 48h stress-lag predictor
+  const RESEARCH_PLACEHOLDER = '[INSERT PREVALENCE STATISTIC OR YOUR QUALITATIVE PAPERS PHRASE MATRIX HERE]';
+
+  const SYMPTOMS = [
+    { label: 'Soreness/Deep Cysts',    emoji: '🔴', hint: 'Tender, deep or painful spots' },
+    { label: 'Active Skin Irritation', emoji: '🔥', hint: 'Red, inflamed or angry-feeling skin' },
+    { label: 'Flaking/Dryness',        emoji: '🍂', hint: 'Tight, peeling or dry patches' },
+    { label: 'Itching',                emoji: '✋', hint: 'Itchy or prickly sensations' }
+  ];
+  const EMOTIONS = [
+    { label: 'Avoiding Mirrors',    emoji: '🪞' },
+    { label: 'Social Discomfort',   emoji: '🫣' },
+    { label: 'Feeling Confident',   emoji: '🌤️' },
+    { label: 'Urge to Pick Skin',   emoji: '🤏' },
+    { label: 'Anxious/Overwhelmed', emoji: '🌊' }
+  ];
+  const TRIGGERS = ['Boredom', 'Studying/Homework', 'Scrolling Social Media', 'Mirror Checking', 'Late at Night', 'Feeling Stressed', 'No urge today'];
+  const WITHDRAWAL_TAGS = ['Avoiding Mirrors', 'Urge to Pick Skin'];
+
+  const FLARE_LABELS = ['Calm & clear', 'A little active', 'Noticeable', 'Active flare', 'Intense flare'];
+  const STRESS_LABELS = ['Light', 'Manageable', 'Building up', 'Heavy', 'Overwhelming'];
+
+  const SLIDERS = {
+    flare:      { label: 'Physical Flare Intensity',     hint: 'How active, sore or inflamed does your skin feel?', min: 1, max: 10, step: 1,   suffix: '/10', c1: '#bae6fd', c2: '#fb7185', low: '1 · Calm', high: '10 · Intense',       describe: v => band(v, FLARE_LABELS) },
+    stress:     { label: 'Academic/Social Stress Strain', hint: 'Tests, homework, friendships, family, online pressure…', min: 1, max: 10, step: 1, suffix: '/10', c1: '#bae6fd', c2: '#f59e0b', low: '1 · Light', high: '10 · Overwhelming', describe: v => band(v, STRESS_LABELS) },
+    screenTime: { label: 'Recreational Screen Time',     hint: 'Scrolling, gaming, videos — not homework', min: 0, max: 12, step: 0.5, suffix: ' hrs', c1: '#e0f2fe', c2: '#0ea5e9', low: '0 hrs', high: '12+ hrs', describe: v => v < 2 ? 'Light' : v < 4 ? 'Moderate' : v < 7 ? 'High' : 'Very high' }
+  };
+
+  // Rotating behavioural prompts — the "Flo refresh" once a 3-day streak exists.
+  const TREND_PROMPTS = [
+    { headline: "Welcome back. Today, let's look at your screen time or skin-picking triggers instead of just flare-ups…",
+      question: "Let's look beyond flare-ups: screen time & picking triggers",
+      sub: 'Small habits leave fingerprints on skin days. Just notice — no judgment.' },
+    { headline: "Welcome back. You've shown up consistently — today, let's get curious about when the urge to pick shows up.",
+      question: 'When did the urge to pick show up today?',
+      sub: 'Knowing your triggers is the first step to interrupting the loop.' },
+    { headline: "Welcome back. Let's zoom out: how did scrolling and late nights shape how your skin felt today?",
+      question: 'How did scrolling shape your day?',
+      sub: 'Late-night scrolling can fuel mirror checking and comparison. Let’s see if that’s true for you.' }
+  ];
+
+  const EXERCISES = {
+    tactile: { name: 'Tactile substitution', icon: '🤲', steps: [
+      'Press your fingertips together firmly for 5 seconds, then release. Repeat.',
+      'Squeeze something soft — a pillow, hoodie sleeve or stress ball — 5 seconds on, 5 off.',
+      'Slowly trace a textured surface with your thumb: a jeans seam, a ring, a fidget toy.',
+      'Rest both hands flat on your legs. Notice the urge rise and fall like a wave — you rode it out.'
+    ] },
+    mirror: { name: 'Mirror neutrality', icon: '🪞', steps: [
+      "Stand an arm's length from a mirror. Soften your gaze — no zooming in.",
+      'Name three neutral facts out loud: “I see my eyes. I see my hair. I see my shoulders.”',
+      'Describe your skin without judgment words: “There are some red spots on my cheek.”',
+      'Finish with a function statement: “My skin protects me. My face lets me laugh with friends.”'
+    ] }
+  };
+
+  const TONES = {
+    growth:   { label: 'Growth path',            icon: '🌱', badge: 'border border-sky-200 bg-sky-50 text-sky-600' },
+    balanced: { label: 'Middle ground',          icon: '⚖️', badge: 'border border-amber-200/70 bg-amber-50 text-amber-700' },
+    costly:   { label: 'Protective, but costly', icon: '🛡️', badge: 'border border-pink-200 bg-pink-50 text-pink-600' }
+  };
+
+  // Each choice has its own `evidence` slot — replace the placeholder per choice with your capstone findings.
+  const SCENARIOS = [
+    {
+      id: 'family-dinner', emoji: '🍲', title: 'The Family Dinner', tag: 'Home · Unsolicited advice',
+      setting: "Sunday dinner at your grandparents'. Your skin has been flaring all week.",
+      lines: [
+        { who: 'Aunt Rina', text: "Sweetie, have you tried just washing your face more? Or cutting out chocolate? Your cousin's skin was perfect at your age." },
+        { who: 'You (thinking)', text: 'Everyone just looked at my chin. My face feels hot.' }
+      ],
+      choices: [
+        { label: 'Laugh it off, then go quiet for the rest of dinner.', tone: 'balanced', title: 'Keeping the peace — at a cost',
+          advice: "Deflecting with humour is a really common way to survive an awkward moment, and it can protect you in the short term. But swallowing the comment often means it replays later — at night, or in the mirror. Notice if this moment shows up in tomorrow's log as “Avoiding Mirrors” or “Social Discomfort.”",
+          skill: "Later, write the comment down — and next to it, one fact: “Acne isn't caused by being dirty.”", evidence: RESEARCH_PLACEHOLDER },
+        { label: "Calmly say: “Thanks — I'm following a plan for my skin. Acne isn't about being dirty.”", tone: 'growth', title: 'A kind, clear boundary',
+          advice: "This corrects a myth without starting a fight, and it signals that you're in charge of your own care. Relatives usually mean well; a short, confident line often ends the topic faster than silence does.",
+          skill: "Script it: “Thanks, I've got it handled” + change the subject (“How's the garden going?”).", evidence: RESEARCH_PLACEHOLDER },
+        { label: 'Leave the table and spend the evening in your room.', tone: 'costly', title: 'Protective withdrawal',
+          advice: 'Needing space is valid — your feelings are real. But if leaving becomes the main way you cope, skin comments can slowly shrink your world. Consider telling one trusted family member afterwards how the comment felt, so they can back you up next time.',
+          skill: 'Try 5-4-3-2-1 grounding (5 things you see, 4 you feel, 3 you hear, 2 you smell, 1 you taste) before deciding whether to go back.', evidence: RESEARCH_PLACEHOLDER }
+      ]
+    },
+    {
+      id: 'presentation', emoji: '🎤', title: 'School Presentation Morning', tag: 'School · Performance anxiety',
+      setting: '7:10 a.m. You present in history first period — and woke up with a painful new breakout on your forehead.',
+      lines: [
+        { who: 'You (thinking)', text: "Everyone's going to be staring at my face for five whole minutes." },
+        { who: 'Group chat', text: 'Mia: ready for today?? 😬  ·  Jordan: we got this!!' }
+      ],
+      choices: [
+        { label: 'Spend 40 minutes trying to cover it — and end up picking at it.', tone: 'costly', title: 'The spiral of fixing',
+          advice: "When we feel watched, the urge to “fix” skin gets very strong — but picking usually makes redness and inflammation worse, and eats into prep time and confidence. It's one of the most common stress-to-skin loops.",
+          skill: "Set a 5-minute timer for your normal routine. When it rings, hands off — switch to rehearsing your opening line out loud.", evidence: RESEARCH_PLACEHOLDER },
+        { label: 'Ask the teacher if you can present another day.', tone: 'balanced', title: 'Avoidance relief',
+          advice: "Postponing brings instant relief, which is exactly why it's tempting. But avoidance teaches your brain the situation was dangerous, so the next presentation can feel even harder. If you're truly overwhelmed, talking to a teacher or counselor is okay — just pair it with a plan to present soon.",
+          skill: 'If you do postpone, pick the new date before you leave the conversation.', evidence: RESEARCH_PLACEHOLDER },
+        { label: 'Do your normal routine, take two slow breaths, and focus on your first sentence.', tone: 'growth', title: 'Attention on purpose',
+          advice: "People tend to overestimate how much others notice our appearance — psychologists call it the “spotlight effect.” Moving your attention onto your message, not your face, is a skill that gets easier every time you practise it.",
+          skill: 'Box breathing: in 4, hold 4, out 4, hold 4 — twice before you stand up.', evidence: RESEARCH_PLACEHOLDER }
+      ]
+    },
+    {
+      id: 'social-ads', emoji: '📱', title: 'Social Media Ads', tag: 'Online · Comparison',
+      setting: "11 p.m., scrolling in bed. Your feed serves the third “clear skin in 3 days” ad tonight — perfect, filtered faces.",
+      lines: [
+        { who: 'Ad', text: '✨ Dermatologists HATE this! Glass skin in 72 hours — 40% off tonight only!' },
+        { who: 'You (thinking)', text: "Maybe if I just had that serum I wouldn't look like this." }
+      ],
+      choices: [
+        { label: "Buy it right now — it's on sale.", tone: 'costly', title: 'Urgency marketing works on everyone',
+          advice: "“Tonight only” and “dermatologists hate this” are pressure tactics designed to skip careful thinking. Starting lots of new products at once can also irritate skin. Feeling hopeful isn't wrong — just let the decision wait until daylight.",
+          skill: 'The 24-hour rule: screenshot it, close the app, and revisit tomorrow with a parent, pharmacist or doctor.', evidence: RESEARCH_PLACEHOLDER },
+        { label: "Tap “Hide ad”, mute the account, and follow a creator who shows real, unfiltered skin.", tone: 'growth', title: 'Curating your feed',
+          advice: "You can't fully control the algorithm, but you can train it. Seeing real skin texture regularly can make your own skin feel more normal — and filtered images feel less like the standard.",
+          skill: 'Do a 3-minute feed audit: mute or unfollow 3 accounts that leave you feeling worse.', evidence: RESEARCH_PLACEHOLDER },
+        { label: "Keep scrolling and zoom in on the “after” photos.", tone: 'balanced', title: 'The comparison trap',
+          advice: "Late-night comparison scrolling often feeds next-morning mirror checking and low mood — and those “after” photos are frequently edited or perfectly lit. Simply noticing that you're comparing is the first step to stopping.",
+          skill: 'Charge your phone across the room 30 minutes before sleep.', evidence: RESEARCH_PLACEHOLDER }
+      ]
+    },
+    {
+      id: 'locker-room', emoji: '🏀', title: 'Locker Room Judgments', tag: 'Sports · Peer comments',
+      setting: 'Changing after PE. Someone notices the breakout on your back and shoulders.',
+      lines: [
+        { who: 'Classmate', text: 'Whoa — what happened to your back? Is that contagious? 😂' },
+        { who: 'Others', text: '*a couple of people laugh*' }
+      ],
+      choices: [
+        { label: 'Fire back an insult about them.', tone: 'balanced', title: 'Defending yourself',
+          advice: 'Wanting to hit back makes total sense — you were embarrassed in front of others. Insults can escalate things, though, and often leave you feeling worse afterwards. A short, flat response usually takes the fun out of it for the person teasing.',
+          skill: "Practise a “boring” reply: “Nope, it's acne. Not contagious.” Then turn away.", evidence: RESEARCH_PLACEHOLDER },
+        { label: 'Decide to skip PE or change in a bathroom stall from now on.', tone: 'costly', title: 'Hiding to stay safe',
+          advice: "Avoiding the locker room protects you today, but it can pull you away from sports and friends you enjoy — and it quietly reinforces the idea that your body is something to hide. If comments keep happening, that's a teasing problem, not a “you” problem.",
+          skill: 'Write down when and where the comments happen — patterns help adults step in.', evidence: RESEARCH_PLACEHOLDER },
+        { label: "Say “It's acne, not contagious,” and later tell your coach or a trusted friend.", tone: 'growth', title: 'Fact + support',
+          advice: 'A calm fact shuts down the myth, and telling a trusted adult means repeated teasing can actually be addressed. Appearance-based teasing is one of the biggest reasons acne affects young people’s wellbeing — you deserve backup.',
+          skill: 'Name one ally you could text after a rough moment.', evidence: RESEARCH_PLACEHOLDER }
+      ]
+    },
+    {
+      id: 'friday-cancel', emoji: '🌙', title: 'Friday Social Cancellations', tag: 'Friends · Avoidance',
+      setting: 'Friday, 6 p.m. Friends are meeting for pizza and a movie at 7. Your skin is red and sore today.',
+      lines: [
+        { who: 'Sam', text: "you're still coming right?? we saved you a seat 🍿" },
+        { who: 'You (thinking)', text: 'Bright lights in the restaurant… everyone will see.' }
+      ],
+      choices: [
+        { label: "Text “sorry, not feeling well” and stay home.", tone: 'costly', title: 'The quiet cancellation',
+          advice: "One night in is fine. But when skin repeatedly decides your plans, loneliness and low mood can make flares feel even heavier — exactly the loop KindSkin watches for in your “Social Discomfort” logs.",
+          skill: 'If you cancel, suggest a make-up hangout in the very same text.', evidence: RESEARCH_PLACEHOLDER },
+        { label: 'Go — with an “exit time” so you can leave after the movie if you want.', tone: 'growth', title: 'Brave, with a safety net',
+          advice: "An exit plan lowers the stakes. For most people, anxiety peaks before the event and drops once they're there. (Also: movie theatres are dark.) Your friends saved you a seat for you — not for your skin.",
+          skill: 'Rate your worry 1–10 before and after. Log both — that data is powerful.', evidence: RESEARCH_PLACEHOLDER },
+        { label: "Suggest a lower-key plan: “Can we do a movie at my place instead?”", tone: 'balanced', title: 'Reshaping, not cancelling',
+          advice: "Offering an alternative keeps the connection while respecting how you feel — a healthy middle ground. Just keep an eye on whether “my place only” quietly becomes the only option for weeks.",
+          skill: 'Say yes to one “outside” plan this month, even a short one.', evidence: RESEARCH_PLACEHOLDER }
+      ]
+    },
+    {
+      id: 'derm-consult', emoji: '🩺', title: 'The Physical-Only Dermatology Consultation', tag: 'Healthcare · Being heard',
+      setting: 'A 10-minute dermatology appointment. The doctor examines your skin, writes a prescription and starts closing your file.',
+      lines: [
+        { who: 'Dermatologist', text: "Okay — use this cream nightly and we'll see you in three months. Any questions?" },
+        { who: 'You (thinking)', text: "I've been skipping parties and avoiding mirrors for weeks. Does that even matter here?" }
+      ],
+      choices: [
+        { label: "Say “No, thanks” and leave.", tone: 'costly', title: 'The unspoken half',
+          advice: "Appointments are short, and many teens only describe the physical side — so the emotional impact never gets recorded, even though quality-of-life tools like the CDLQI exist precisely to capture it. You're allowed to bring it up.",
+          skill: 'You can still message the clinic afterwards or raise it at the next visit.', evidence: RESEARCH_PLACEHOLDER },
+        { label: "Show your KindSkin Monthly Report and say: “It's also affecting my mood and social life.”", tone: 'growth', title: 'Bringing your data',
+          advice: 'Tracked patterns — flare days, stress links, avoidance — give doctors concrete information in a short visit. Naming the emotional impact can change the conversation, and sometimes the plan or a referral for extra support.',
+          skill: 'Before the visit, write your top 3 points in your phone notes. Reading them out loud counts!', evidence: RESEARCH_PLACEHOLDER },
+        { label: 'Look at your parent and hope they say something.', tone: 'balanced', title: 'A borrowed voice',
+          advice: "Having an adult advocate is genuinely helpful, especially at first. Try adding one sentence yourself, too — building your own healthcare voice matters more and more as you get older.",
+          skill: 'Agree on a signal with your parent beforehand, and say the first sentence yourself.', evidence: RESEARCH_PLACEHOLDER }
+      ]
+    }
+  ];
+
+  /* ════════════════════════════════════════════════════════════
+     UTILITIES
+     ════════════════════════════════════════════════════════════ */
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+  const avg = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+  const round1 = n => Math.round(n * 10) / 10;
+  const pad = n => String(n).padStart(2, '0');
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const band = (v, labels) => labels[clamp(Math.floor((Math.round(v) - 1) / 2), 0, labels.length - 1)];
+
+  const toKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const fromKey = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addDays = (k, n) => { const d = fromKey(k); d.setDate(d.getDate() + n); return toKey(d); };
+  const todayKey = () => toKey(new Date());
+  const diffDays = (a, b) => Math.round((fromKey(a) - fromKey(b)) / 86400000);
+  const byDateAsc = (a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  const fmt = (k, o) => fromKey(k).toLocaleDateString(undefined, o);
+  const fmtShort = k => fmt(k, { weekday: 'short', month: 'short', day: 'numeric' });
+  const relDay = k => { const d = diffDays(todayKey(), k); return d === 0 ? 'Today' : d === 1 ? 'Yesterday' : d === -1 ? 'Tomorrow' : fmtShort(k); };
+  const monthKey = k => k.slice(0, 7);
+  const shiftMonth = (mk, n) => { const [y, m] = mk.split('-').map(Number); const d = new Date(y, m - 1 + n, 1); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; };
+  const monthLabel = mk => { const [y, m] = mk.split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }); };
+  const daysInMonth = mk => { const [y, m] = mk.split('-').map(Number); return new Date(y, m, 0).getDate(); };
+  const days = n => `${n} ${n === 1 ? 'day' : 'days'}`;
+
+  function flareTone(f) {
+    if (f <= CALM_FLARE_MAX) return { key: 'calm', label: 'Calm', cell: 'bg-sky-100 text-sky-800', dot: 'bg-sky-300' };
+    if (f < ACTIVE_FLARE_MIN) return { key: 'mild', label: 'Mild', cell: 'bg-pink-100 text-pink-800', dot: 'bg-pink-300' };
+    if (f <= 7) return { key: 'active', label: 'Active', cell: 'bg-rose-200 text-rose-800', dot: 'bg-rose-400' };
+    return { key: 'intense', label: 'Intense', cell: 'bg-rose-300 text-rose-900', dot: 'bg-rose-500' };
+  }
+
+  function pearson(pairs) {
+    if (pairs.length < 3) return null;
+    const mx = avg(pairs.map(p => p[0])), my = avg(pairs.map(p => p[1]));
+    let num = 0, dx = 0, dy = 0;
+    for (const [x, y] of pairs) { num += (x - mx) * (y - my); dx += (x - mx) ** 2; dy += (y - my) ** 2; }
+    return dx === 0 || dy === 0 ? null : num / Math.sqrt(dx * dy);
+  }
+
+  function mulberry32(a) {
+    return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     STORAGE (localStorage → kindSkinLogs)
+     ════════════════════════════════════════════════════════════ */
+  const strArr = v => (Array.isArray(v) ? v.filter(x => typeof x === 'string') : []);
+
+  function normalizeEntry(e) {
+    const now = Date.now();
+    return {
+      id: e.id || 'ks_' + e.date,
+      date: e.date,
+      createdAt: e.createdAt || now,
+      updatedAt: e.updatedAt || e.createdAt || now,
+      symptoms: strArr(e.symptoms),
+      emotions: strArr(e.emotions),
+      flare: clamp(Math.round(Number(e.flare) || 1), 1, 10),
+      stress: clamp(Math.round(Number(e.stress) || 1), 1, 10),
+      screenTime: e.screenTime == null ? null : clamp(Number(e.screenTime) || 0, 0, 12),
+      triggers: strArr(e.triggers),
+      note: String(e.note || '').slice(0, 500),
+      mode: e.mode || 'building',
+      demo: !!e.demo
+    };
+  }
+
+  function loadLogs() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      if (!Array.isArray(parsed)) return [];
+      const seen = new Map();
+      parsed.filter(e => e && typeof e.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(e.date))
+            .forEach(e => seen.set(e.date, normalizeEntry(e)));  // one entry per day, last write wins
+      return [...seen.values()].sort(byDateAsc);
+    } catch (err) {
+      console.warn('KindSkin: could not read saved logs', err);
+      return [];
+    }
+  }
+
+  function persistLogs() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.logs)); return true; }
+    catch (err) { toast('Could not save — browser storage may be full or blocked.', 'warn'); return false; }
+  }
+
+  function loadScenarioProgress() {
+    try { const p = JSON.parse(localStorage.getItem(SCENARIO_KEY) || '{}'); return p && typeof p === 'object' && !Array.isArray(p) ? p : {}; }
+    catch { return {}; }
+  }
+  function persistScenarioProgress() {
+    try { localStorage.setItem(SCENARIO_KEY, JSON.stringify(state.scenarioProgress)); } catch { /* non-critical */ }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     STATE
+     ════════════════════════════════════════════════════════════ */
+  const state = {
+    logs: loadLogs(),
+    tab: 'today',
+    selected: todayKey(),
+    stripCenter: todayKey(),
+    mode: null,
+    steps: [],
+    step: 0,
+    draft: null,
+    formView: 'steps',
+    reportMonth: monthKey(todayKey()),
+    scenarioId: null,
+    scenarioProgress: loadScenarioProgress(),
+    forecastUpdatedAt: Date.now()
+  };
+
+  const logMap = () => new Map(state.logs.map(l => [l.date, l]));
+
+  function streakEndingAt(map, key) {
+    let n = 0;
+    while (map.has(key)) { n++; key = addDays(key, -1); }
+    return n;
+  }
+  function currentStreak() {
+    const m = logMap(), t = todayKey();
+    return m.has(t) ? streakEndingAt(m, t) : streakEndingAt(m, addDays(t, -1));
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     LOGIC-VARIED DAILY CHECK-INS (Flo refresh model)
+     Evaluates how many entries exist and the consecutive-day run
+     leading into the selected date.
+     ════════════════════════════════════════════════════════════ */
+  function getCheckInMode(dateKey) {
+    const map = logMap();
+    const total = state.logs.length;
+    const streak = streakEndingAt(map, addDays(dateKey, -1));           // consecutive days right before this check-in
+    const dayNumber = state.logs.filter(l => l.date < dateKey).length + 1;
+    if (total === 0 || (total === 1 && map.has(dateKey))) return { mode: 'onboarding', streak, dayNumber: 1, total };
+    if (streak >= 3) return { mode: 'trends', streak, dayNumber, total };
+    return { mode: 'building', streak, dayNumber, total };
+  }
+
+  const trendPrompt = () => TREND_PROMPTS[Math.max(0, (state.mode?.streak || 3) - 3) % TREND_PROMPTS.length];
+
+  function buildSteps(mode, entry) {
+    const s = [{ id: 'body', label: 'Body' }, { id: 'mind', label: 'Mind' }, { id: 'intensity', label: 'Intensity' }];
+    if (mode === 'trends' || (entry && entry.screenTime != null)) s.push({ id: 'patterns', label: 'Patterns' });
+    s.push({ id: 'reflect', label: 'Reflect' });
+    return s;
+  }
+
+  function makeDraft(entry) {
+    return entry
+      ? { symptoms: [...entry.symptoms], emotions: [...entry.emotions], flare: entry.flare, stress: entry.stress,
+          screenTime: entry.screenTime ?? 3, triggers: [...entry.triggers], note: entry.note }
+      : { symptoms: [], emotions: [], flare: 3, stress: 4, screenTime: 3, triggers: [], note: '' };
+  }
+
+  function openDate(key) {
+    if (key > todayKey()) return;
+    state.selected = key;
+    if (Math.abs(diffDays(key, state.stripCenter)) > 3) state.stripCenter = key;
+    const entry = logMap().get(key);
+    state.mode = getCheckInMode(key);
+    state.steps = buildSteps(state.mode.mode, entry);
+    state.step = 0;
+    state.draft = makeDraft(entry);
+    state.formView = entry ? 'done' : 'steps';
+    renderStrip();
+    renderPrompt();
+    renderForm();
+    renderRecent();
+  }
+
+  function saveCheckIn() {
+    const date = state.selected;
+    const existing = logMap().get(date);
+    const d = state.draft;
+    const hasPatterns = state.steps.some(s => s.id === 'patterns');
+    const entry = normalizeEntry({
+      id: existing?.id || 'ks_' + Date.now().toString(36),
+      date,
+      createdAt: existing?.createdAt || Date.now(),
+      updatedAt: Date.now(),
+      symptoms: d.symptoms, emotions: d.emotions,
+      flare: d.flare, stress: d.stress,
+      screenTime: hasPatterns ? d.screenTime : (existing?.screenTime ?? null),
+      triggers: hasPatterns ? d.triggers : (existing?.triggers ?? []),
+      note: d.note,
+      mode: state.mode.mode
+    });
+    const prev = state.logs;
+    state.logs = state.logs.filter(l => l.date !== date).concat(entry).sort(byDateAsc);
+    if (!persistLogs()) { state.logs = prev; return; }
+
+    state.forecastUpdatedAt = Date.now();
+    toast(existing ? 'Check-in updated 💗' : 'Check-in saved 🌸 Forecast refreshed');
+    openDate(date);
+    renderHeader();
+    renderForecast(true);
+    renderReport();
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     TREND ANALYZER → "What to Expect Next"
+     Runs over the full history on every render/submission.
+     ════════════════════════════════════════════════════════════ */
+  function analyzeTrends(logs, refKey) {
+    const map = new Map(logs.map(l => [l.date, l]));
+    const past = logs.filter(l => l.date <= refKey).sort(byDateAsc);
+    const items = [];
+    if (!past.length) return [{ type: 'unlock', count: 0 }];
+
+    // 1 · Stress-lag predictor: stress ≥ 7 logged exactly 48h (2 calendar days) before today.
+    const lagKey = addDays(refKey, -2);
+    const lagEntry = map.get(lagKey);
+    if (lagEntry && lagEntry.stress >= HIGH_STRESS) {
+      items.push({ type: 'stressLag', sourceDate: lagKey, stress: lagEntry.stress, todayEntry: map.get(refKey) || null });
+    }
+
+    // 2 · Withdrawal cycle detector: mirror avoidance / picking urges across consecutive inputs.
+    const run = [];
+    for (let i = past.length - 1; i >= 0; i--) {
+      if (past[i].emotions.some(t => WITHDRAWAL_TAGS.includes(t))) run.push(past[i]); else break;
+    }
+    if (run.length >= 2) {
+      const pick = run.filter(e => e.emotions.includes('Urge to Pick Skin')).length;
+      const mirror = run.filter(e => e.emotions.includes('Avoiding Mirrors')).length;
+      items.push({ type: 'withdrawal', run: run.length, dominant: pick >= mirror ? 'tactile' : 'mirror', pick, mirror });
+    }
+
+    // 3 · Look-ahead: high stress yesterday/today → irritation window lands in the next 1–2 days.
+    [addDays(refKey, -1), refKey].forEach(k => {
+      const e = map.get(k);
+      if (e && e.stress >= HIGH_STRESS) items.push({ type: 'upcoming', sourceDate: k, stress: e.stress, expected: addDays(k, 2) });
+    });
+
+    // 4 · Baseline when there are no active warnings.
+    if (!items.some(i => i.type === 'stressLag' || i.type === 'withdrawal')) {
+      if (past.length < 3) items.push({ type: 'unlock', count: past.length });
+      else {
+        const last7 = past.slice(-7);
+        const recent = avg(past.slice(-3).map(e => e.flare));
+        const before = past.length >= 6 ? avg(past.slice(-6, -3).map(e => e.flare)) : null;
+        const delta = before == null ? 0 : recent - before;
+        items.push({
+          type: 'steady',
+          avgFlare: round1(avg(last7.map(e => e.flare))),
+          avgStress: round1(avg(last7.map(e => e.stress))),
+          trend: delta <= -1 ? 'calmer' : delta >= 1 ? 'busier' : 'steady',
+          spark: past.slice(-10).map(e => e.flare)
+        });
+      }
+    }
+    return items;
+  }
+
+  function forecastWatchDays() {
+    const t = todayKey(), out = new Set();
+    state.logs.forEach(e => { if (e.stress >= HIGH_STRESS) { const k = addDays(e.date, 2); if (k >= t) out.add(k); } });
+    return out;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     RENDER · HEADER, STRIP, PROMPT
+     ════════════════════════════════════════════════════════════ */
+  function renderHeader() {
+    const s = currentStreak();
+    $('#streakPill').innerHTML = `
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-petal bg-white px-3 py-1.5 text-xs font-bold text-slate-600 shadow-sm">
+        <span aria-hidden="true">${s >= 3 ? '💙' : '🌱'}</span>${s ? `${s}-day streak` : 'Start your streak'}
+      </span>`;
+  }
+
+  function renderStrip() {
+    const map = logMap(), t = todayKey(), watch = forecastWatchDays();
+    const keys = Array.from({ length: 7 }, (_, i) => addDays(state.stripCenter, i - 3));
+    const first = fromKey(keys[0]), last = fromKey(keys[6]);
+    $('#stripRange').textContent = `${first.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} – ${last.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    $('#stripNext').disabled = state.stripCenter >= t;
+
+    $('#stripDays').innerHTML = keys.map(k => {
+      const e = map.get(k), isToday = k === t, future = k > t, selected = k === state.selected, isWatch = watch.has(k);
+      const d = fromKey(k);
+      let circle;
+      if (selected) circle = 'bg-sky-500 text-white shadow-md ring-4 ring-sky-100';
+      else if (e) circle = flareTone(e.flare).cell;
+      else if (future && isWatch) circle = 'border-2 border-dashed border-sky-400 text-sky-500 bg-sky-50/50';
+      else if (future) circle = 'border-2 border-dashed border-pink-200 text-slate-300';
+      else if (isToday) circle = 'border-2 border-sky-300 text-sky-600 bg-white';
+      else circle = 'border border-pink-100 bg-white text-slate-500';
+
+      const marker = isToday ? '<span class="text-[9px] font-extrabold uppercase tracking-wider text-sky-500">Today</span>'
+        : e ? `<span class="h-1.5 w-1.5 rounded-full ${flareTone(e.flare).dot}"></span>`
+        : isWatch ? '<span class="text-[9px] font-extrabold uppercase tracking-wider text-sky-500">Watch</span>'
+        : '<span class="h-1.5 w-1.5"></span>';
+
+      const label = `${fmt(k, { weekday: 'long', month: 'long', day: 'numeric' })}${e ? `, logged, flare ${e.flare} of 10` : future ? ', upcoming' : ', not logged'}${isWatch ? ', forecast watch day' : ''}`;
+      return `
+        <button type="button" data-action="select-day" data-date="${k}" ${future ? 'disabled' : ''} aria-label="${esc(label)}" ${selected ? 'aria-current="date"' : ''}
+          class="group flex flex-col items-center gap-1.5 rounded-2xl py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${future ? 'cursor-default' : 'hover:bg-blush'}">
+          <span class="text-[11px] font-semibold uppercase tracking-wide ${selected ? 'text-sky-600' : 'text-slate-400'}">${d.toLocaleDateString(undefined, { weekday: 'short' }).slice(0, 3)}</span>
+          <span class="grid h-10 w-10 place-items-center rounded-full text-sm font-bold tabular-nums transition sm:h-12 sm:w-12 sm:text-base ${circle}">${d.getDate()}</span>
+          <span class="flex h-3 items-center">${marker}</span>
+        </button>`;
+    }).join('');
+  }
+
+  function renderPrompt() {
+    const info = state.mode, sel = state.selected, isToday = sel === todayKey();
+    let badge, badgeCls, title, body, extra = '';
+
+    if (info.mode === 'onboarding') {
+      badge = 'Day 1 · Welcome'; badgeCls = 'bg-pink-50 text-pink-500 border border-pink-100';
+      title = "Hi, I'm KindSkin 🌸 Let's start your skin story gently.";
+      body = 'Each check-in takes about a minute: what your skin is doing, how you feel about it, and how heavy stress feels. After 3 check-ins, KindSkin starts spotting links between stress and flare-ups — and after 3 days in a row, it looks at habits too.';
+      extra = `<ol class="mt-5 grid grid-cols-3 gap-2 text-center">
+        ${[['🫧', 'Body'], ['💭', 'Mind'], ['🎚️', 'Intensity']].map(([i, l], n) => `
+          <li class="rounded-2xl border border-petal bg-white/80 px-2 py-3"><span class="text-xl" aria-hidden="true">${i}</span><span class="mt-1 block text-[11px] font-bold text-slate-500">${n + 1}. ${l}</span></li>`).join('')}
+      </ol>`;
+    } else if (info.mode === 'trends') {
+      const p = trendPrompt();
+      badge = `Day ${info.dayNumber} · Pattern mode · ${info.streak}-day run`; badgeCls = 'bg-sky-50 text-sky-600 border border-sky-100';
+      title = p.headline;
+      body = "You've built enough history for KindSkin to look past symptoms and into behaviour. Today's check-in has an extra <b>Patterns</b> step.";
+    } else {
+      const need = 3 - info.streak;
+      badge = `Day ${info.dayNumber} · Building your baseline`; badgeCls = 'bg-amber-50 text-amber-700 border border-amber-200/60';
+      title = 'Good to see you again 💗 How is your skin treating you today?';
+      body = info.streak > 0
+        ? `You're on a ${days(info.streak)} run. ${need} more consecutive ${need === 1 ? 'day' : 'days'} unlocks <b>Pattern mode</b>, where we look beyond flare-ups.`
+        : 'Log 3 days in a row to unlock <b>Pattern mode</b>, where KindSkin starts looking at screen time and picking triggers.';
+      extra = `<div class="mt-4 flex items-center gap-1.5" aria-label="${info.streak} of 3 consecutive days">
+        ${[0, 1, 2].map(i => `<span class="h-2 w-10 rounded-full ${i < info.streak ? 'bg-sky-400' : 'bg-pink-100'}"></span>`).join('')}
+      </div>`;
+    }
+
+    const backfill = isToday ? '' : `
+      <p class="mt-4 inline-flex items-center gap-2 rounded-2xl bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700">
+        ↺ You're filling in ${fmt(sel, { weekday: 'long', month: 'short', day: 'numeric' })}. Forecasts always use today as the reference point.
+      </p>`;
+
+    $('#promptCard').innerHTML = `
+      <div class="rise relative overflow-hidden rounded-3xl border border-petal bg-gradient-to-br from-white via-white to-pink-50 p-6 shadow-soft sm:p-7">
+        <div aria-hidden="true" class="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-pink-100/70 blur-2xl"></div>
+        <div aria-hidden="true" class="pointer-events-none absolute -bottom-16 left-10 h-36 w-36 rounded-full bg-sky-100/60 blur-2xl"></div>
+        <div class="relative">
+          <span class="pill ${badgeCls}">${badge}</span>
+          <h1 class="mt-3 text-[22px] font-extrabold leading-snug tracking-tight text-slate-800 sm:text-[26px]">${title}</h1>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">${body}</p>
+          ${extra}${backfill}
+        </div>
+      </div>`;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     RENDER · STEP-BY-STEP CHECK-IN FORM
+     ════════════════════════════════════════════════════════════ */
+  const fillPct = (field, v) => { const c = SLIDERS[field]; return ((v - c.min) / (c.max - c.min)) * 100; };
+  const sliderValueText = (field, v) => `${v}${field === 'screenTime' ? ' hours' : ' out of 10'}, ${SLIDERS[field].describe(v)}`;
+
+  function sliderHTML(field) {
+    const c = SLIDERS[field], v = state.draft[field];
+    return `
+      <div class="rounded-3xl border border-pink-100 bg-blush/60 p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <label for="sl-${field}" class="block text-sm font-bold text-slate-700">${c.label}</label>
+            <p class="mt-0.5 text-xs text-slate-400">${c.hint}</p>
+          </div>
+          <div class="shrink-0 text-right">
+            <p class="leading-none"><span class="text-3xl font-extrabold tabular-nums text-slate-800" data-readout="${field}">${v}</span><span class="text-sm font-semibold text-slate-400">${c.suffix}</span></p>
+            <p class="mt-1 text-xs font-semibold text-slate-500" data-desc="${field}">${c.describe(v)}</p>
+          </div>
+        </div>
+        <input id="sl-${field}" type="range" class="ks-range mt-5 w-full" min="${c.min}" max="${c.max}" step="${c.step}" value="${v}"
+          data-field="${field}" aria-valuetext="${esc(sliderValueText(field, v))}" style="--c1:${c.c1};--c2:${c.c2};--fill:${fillPct(field, v)}%">
+        <div class="mt-2 flex justify-between text-[11px] font-medium text-slate-400"><span>${c.low}</span><span>${c.high}</span></div>
+      </div>`;
+  }
+
+  const chipHTML = (group, label, emoji = '') => `
+    <button type="button" class="chip" data-action="toggle" data-group="${group}" data-value="${esc(label)}" aria-pressed="${state.draft[group].includes(label)}">
+      ${emoji ? `<span aria-hidden="true">${emoji}</span>` : ''}${esc(label)}
+    </button>`;
+
+  const symptomHTML = s => `
+    <button type="button" class="choice" data-action="toggle" data-group="symptoms" data-value="${esc(s.label)}" aria-pressed="${state.draft.symptoms.includes(s.label)}">
+      <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-blush text-xl" aria-hidden="true">${s.emoji}</span>
+      <span class="min-w-0 flex-1"><span class="block text-sm font-bold">${s.label}</span><span class="mt-0.5 block text-xs text-slate-400">${s.hint}</span></span>
+      <span class="choice-check" aria-hidden="true"></span>
+    </button>`;
+
+  const panelHead = (eyebrow, title, sub) => `
+    <p class="eyebrow">${eyebrow}</p>
+    <h3 class="mt-1 text-lg font-extrabold leading-snug text-slate-800">${title}</h3>
+    <p class="mb-5 mt-1 text-sm text-slate-500">${sub}</p>`;
+
+  const PANELS = {
+    body: n => `
+      ${panelHead(`Step ${n} · Body`, "What's your skin doing today?", 'Tap everything that applies. Nothing today? Skip ahead — calm days are data too.')}
+      <div class="grid gap-3 sm:grid-cols-2" role="group" aria-label="Physical acne symptoms">${SYMPTOMS.map(symptomHTML).join('')}</div>`,
+    mind: n => `
+      ${panelHead(`Step ${n} · Mind`, 'How are you feeling about your skin?', 'Pick as many as fit. There are no wrong answers here.')}
+      <div class="flex flex-wrap gap-2.5" role="group" aria-label="Emotional state">${EMOTIONS.map(e => chipHTML('emotions', e.label, e.emoji)).join('')}</div>
+      <p class="mt-5 rounded-2xl bg-blush px-4 py-3 text-xs leading-relaxed text-slate-500">💡 Avoiding mirrors or wanting to pick are really common with acne. Logging them helps KindSkin spot loops early — and offer something kinder.</p>`,
+    intensity: n => `
+      ${panelHead(`Step ${n} · Intensity`, 'How heavy does today feel?', 'Skin and stress are tracked separately so we can see how they move together.')}
+      <div class="space-y-4">${sliderHTML('flare')}${sliderHTML('stress')}</div>`,
+    patterns: n => { const p = trendPrompt(); return `
+      ${panelHead(`Step ${n} · Patterns`, p.question, p.sub)}
+      <div class="space-y-5">
+        ${sliderHTML('screenTime')}
+        <div>
+          <p class="text-sm font-bold text-slate-700">Skin-picking triggers today</p>
+          <p class="mb-3 mt-0.5 text-xs text-slate-400">When did the urge show up? Triggers, not judgments.</p>
+          <div class="flex flex-wrap gap-2.5" role="group" aria-label="Skin-picking triggers">${TRIGGERS.map(t => chipHTML('triggers', t)).join('')}</div>
+        </div>
+      </div>`; },
+    reflect: n => `
+      ${panelHead(`Step ${n} · Reflect`, 'Anything future-you should know?', 'Optional. A word, a sentence, a small win — it stays on this device.')}
+      <label for="noteInput" class="sr-only">Private note</label>
+      <textarea id="noteInput" rows="3" maxlength="500" class="w-full resize-none rounded-2xl border border-pink-100 bg-blush/50 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-sky-300 focus:outline-none focus:ring-4 focus:ring-sky-100"
+        placeholder="e.g. Big chem test tomorrow. Skipped the mirror this morning and felt okay.">${esc(state.draft.note)}</textarea>
+      <div id="reviewSummary" class="mt-4"></div>`
+  };
+
+  let panelObserver = null;
+
+  function renderForm() {
+    const isToday = state.selected === todayKey();
+    const entry = logMap().get(state.selected);
+    $('#formTitle').textContent = isToday ? `Today · ${fmt(state.selected, { month: 'long', day: 'numeric' })}` : fmt(state.selected, { weekday: 'long', month: 'long', day: 'numeric' });
+    $('#formBadge').innerHTML = entry
+      ? '<span class="pill border border-sky-100 bg-sky-50 text-sky-600">✓ Saved</span>'
+      : `<span class="pill border border-petal bg-blush text-pink-500">${state.mode.mode === 'trends' ? '5 steps · ~90s' : '4 steps · ~60s'}</span>`;
+
+    if (panelObserver) { panelObserver.disconnect(); panelObserver = null; }
+    if (state.formView === 'done' && entry) { renderDone(entry); return; }
+
+    const steps = state.steps;
+    $('#formBody').innerHTML = `
+      <ol class="grid gap-2" style="grid-template-columns:repeat(${steps.length},minmax(0,1fr))" aria-label="Check-in steps">
+        ${steps.map((s, i) => `
+          <li><button type="button" data-action="step-goto" data-index="${i}" class="w-full rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300" aria-label="Go to step ${i + 1}: ${s.label}">
+            <span data-progress class="block h-1.5 rounded-full"></span>
+            <span data-progress-label class="mt-2 block truncate text-[11px] font-semibold">${s.label}</span>
+          </button></li>`).join('')}
+      </ol>
+      <div id="stepViewport" class="relative mt-6 overflow-hidden">
+        <div id="stepTrack" class="step-track flex items-start">
+          ${steps.map((s, i) => `<div class="step-panel w-full shrink-0 px-1 pb-1" data-panel="${i}">${PANELS[s.id](i + 1)}</div>`).join('')}
+        </div>
+      </div>
+      <div class="mt-6 flex items-center justify-between gap-3 border-t border-pink-50 pt-5">
+        <button type="button" id="stepBack" data-action="step-back" class="btn-ghost">← Back</button>
+        <span id="stepCount" class="text-xs font-semibold text-slate-400"></span>
+        <button type="button" id="stepNext" data-action="step-next" class="btn-sky">Next →</button>
+      </div>`;
+
+    // Keep the viewport height matched to the active panel (Tailwind CDN styles can land a frame later).
+    if ('ResizeObserver' in window) {
+      panelObserver = new ResizeObserver(syncViewportHeight);
+      $$('.step-panel').forEach(p => panelObserver.observe(p));
+    }
+    updateStepUI();
+  }
+
+  function syncViewportHeight() {
+    const vp = $('#stepViewport'), p = $(`.step-panel[data-panel="${state.step}"]`);
+    if (vp && p) vp.style.height = p.offsetHeight + 'px';
+  }
+
+  function updateStepUI() {
+    const track = $('#stepTrack');
+    if (!track) return;
+    const i = state.step, n = state.steps.length, last = i === n - 1;
+    track.style.transform = `translateX(-${i * 100}%)`;
+    $$('.step-panel', track).forEach((p, idx) => { p.inert = idx !== i; p.setAttribute('aria-hidden', String(idx !== i)); });
+    $$('[data-progress]').forEach((el, idx) => { el.className = 'block h-1.5 rounded-full transition-colors duration-300 ' + (idx < i ? 'bg-sky-300' : idx === i ? 'bg-sky-500' : 'bg-pink-100'); });
+    $$('[data-progress-label]').forEach((el, idx) => { el.className = 'mt-2 block truncate text-[11px] font-semibold ' + (idx === i ? 'text-sky-600' : idx < i ? 'text-slate-500' : 'text-slate-300'); });
+    $('#stepBack').disabled = i === 0;
+    const next = $('#stepNext');
+    next.textContent = last ? 'Save check-in ✓' : 'Next →';
+    next.className = last ? 'btn-solid' : 'btn-sky';
+    $('#stepCount').textContent = `Step ${i + 1} of ${n}`;
+    if (state.steps[i].id === 'reflect') renderReview();
+    requestAnimationFrame(syncViewportHeight);
+  }
+
+  const tagPill = t => `<span class="pill border border-petal bg-blush text-slate-600">${esc(t)}</span>`;
+  const miniStat = (label, value, sub) => `
+    <div class="rounded-2xl bg-blush/70 px-4 py-3">
+      <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">${label}</p>
+      <p class="mt-0.5 text-xl font-extrabold tabular-nums text-slate-800">${value}</p>
+      <p class="text-xs font-semibold text-slate-500">${sub}</p>
+    </div>`;
+
+  function renderReview() {
+    const el = $('#reviewSummary'), d = state.draft;
+    if (!el) return;
+    const tags = [...d.symptoms, ...d.emotions];
+    el.innerHTML = `
+      <div class="rounded-3xl border border-pink-100 p-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Snapshot before saving</p>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          ${miniStat('Flare', `${d.flare}/10`, flareTone(d.flare).label)}
+          ${miniStat('Stress', `${d.stress}/10`, band(d.stress, STRESS_LABELS))}
+        </div>
+        <div class="mt-3 flex flex-wrap gap-1.5">${tags.length ? tags.map(tagPill).join('') : `<span class="text-xs text-slate-400">No symptoms or feelings tagged — that's okay.</span>`}</div>
+      </div>`;
+    requestAnimationFrame(syncViewportHeight);
+  }
+
+  function renderDone(entry) {
+    const isToday = entry.date === todayKey();
+    const tags = [...entry.symptoms, ...entry.emotions];
+    $('#formBody').innerHTML = `
+      <div class="rise text-center">
+        <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sky-50 text-3xl" aria-hidden="true">💗</div>
+        <h3 class="mt-4 text-lg font-extrabold text-slate-800">${isToday ? "You're checked in for today" : `Saved for ${fmtShort(entry.date)}`}</h3>
+        <p class="mx-auto mt-1 max-w-sm text-sm text-slate-500">${isToday ? 'Showing up for yourself counts. Your forecast and monthly report have been refreshed.' : 'Your history and forecasts now include this day.'}</p>
+      </div>
+      <div class="mt-6 grid grid-cols-2 gap-3 ${entry.screenTime != null ? 'sm:grid-cols-3' : ''}">
+        ${miniStat('Flare', `${entry.flare}/10`, flareTone(entry.flare).label)}
+        ${miniStat('Stress', `${entry.stress}/10`, band(entry.stress, STRESS_LABELS))}
+        ${entry.screenTime != null ? miniStat('Screen time', `${entry.screenTime}h`, SLIDERS.screenTime.describe(entry.screenTime)) : ''}
+      </div>
+      <div class="mt-4 flex flex-wrap justify-center gap-1.5">${tags.map(tagPill).join('')}</div>
+      ${entry.note ? `<p class="mt-4 rounded-2xl bg-blush px-4 py-3 text-sm italic text-slate-600">“${esc(entry.note)}”</p>` : ''}
+      <div class="mt-6 flex flex-wrap justify-center gap-2">
+        <button type="button" data-action="edit-entry" class="btn-sky">✎ Edit check-in</button>
+        <button type="button" data-action="tab" data-tab="report" class="btn-ghost">See monthly insights →</button>
+      </div>`;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     RENDER · FORECAST BANNER
+     ════════════════════════════════════════════════════════════ */
+  const cope = { exercise: 'tactile', timer: null, startedAt: 0 };
+  const RING_C = 2 * Math.PI * 34;
+
+  function sparkline(values) {
+    const w = 120, h = 34, max = 10, min = 1;
+    const pts = values.map((v, i) => [values.length === 1 ? w / 2 : (i / (values.length - 1)) * (w - 6) + 3, h - 3 - ((v - min) / (max - min)) * (h - 6)]);
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+    const lastP = pts[pts.length - 1];
+    return `<svg viewBox="0 0 ${w} ${h}" class="h-9 w-[120px]" aria-hidden="true"><path d="${d}" fill="none" stroke="#f9a8d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${lastP[0]}" cy="${lastP[1]}" r="3.5" fill="#fb7185"/></svg>`;
+  }
+
+  const FORECAST_VIEWS = {
+    stressLag: it => `
+      <article class="flash-sky relative overflow-hidden rounded-3xl border border-sky-200 bg-sky-50 p-5" role="status">
+        <div class="flex items-center gap-2">
+          <span class="relative flex h-2.5 w-2.5"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span><span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-sky-500"></span></span>
+          <p class="text-[11px] font-extrabold uppercase tracking-widest text-sky-600">Stress-lag predictor · 48h</p>
+        </div>
+        <h3 class="mt-3 text-base font-extrabold text-slate-800">🚨 Predictive Cycle Warning</h3>
+        <p class="mt-1.5 text-sm leading-relaxed text-slate-600">Your 3-day history indicates an active stress-lag. Your skin barrier typically experiences increased irritation 48 hours after high emotional stress.</p>
+        <div class="placeholder-box mt-3">[INSERT CAPSTONE DATA FINDINGS ON STRESS CORRELATIONS HERE]</div>
+        <div class="mt-3 flex flex-wrap gap-1.5">
+          <span class="pill bg-white text-sky-700">Stress ${it.stress}/10 on ${fmtShort(it.sourceDate)}</span>
+          <span class="pill bg-white text-sky-700">Watch window: today</span>
+          ${it.todayEntry ? `<span class="pill bg-white text-sky-700">Today's flare: ${it.todayEntry.flare}/10</span>` : ''}
+        </div>
+        <ul class="mt-3 space-y-1 text-xs text-slate-600">
+          <li>• Keep today's routine simple — it's not the day to try new products.</li>
+          <li>• Hands-off reminder: irritation can make the urge to pick stronger.</li>
+          <li>• Wind down a little earlier tonight if you can.</li>
+        </ul>
+      </article>`,
+
+    upcoming: it => `
+      <article class="rounded-3xl border border-sky-100 bg-white p-4">
+        <p class="text-[11px] font-extrabold uppercase tracking-widest text-sky-500">Looking ahead</p>
+        <p class="mt-1.5 text-sm leading-relaxed text-slate-600">You logged stress at <b>${it.stress}/10</b> ${relDay(it.sourceDate).toLowerCase() === 'today' ? 'today' : relDay(it.sourceDate).toLowerCase()}. If your 48-hour pattern holds, keep an eye on <b>${relDay(it.expected) === 'Tomorrow' ? 'tomorrow' : fmt(it.expected, { weekday: 'long' })}</b> — it's marked as a watch day on your calendar.</p>
+      </article>`,
+
+    withdrawal: it => {
+      cope.exercise = it.dominant;
+      const ex = EXERCISES[cope.exercise];
+      return `
+      <article class="rounded-3xl border border-amber-200/50 bg-amber-50 p-5" data-coping>
+        <p class="text-[11px] font-extrabold uppercase tracking-widest text-amber-600">Withdrawal cycle detected</p>
+        <h3 class="mt-2 text-base font-extrabold text-slate-800">A 60-second reset, just for you</h3>
+        <p class="mt-1 text-sm leading-relaxed text-slate-600">${it.pick && it.mirror ? '“Avoiding Mirrors” and “Urge to Pick Skin” have' : it.pick ? '“Urge to Pick Skin” has' : '“Avoiding Mirrors” has'} shown up in your last ${it.run} check-ins in a row. That's a really common loop — not a failure. Try this:</p>
+        <div class="mt-4 inline-flex rounded-full bg-white/80 p-1" role="tablist" aria-label="Choose an exercise">
+          ${Object.entries(EXERCISES).map(([k, e]) => `<button type="button" role="tab" data-action="cope-tab" data-exercise="${k}" aria-selected="${k === cope.exercise}" class="cope-tab rounded-full px-3.5 py-1.5 text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300">${e.icon} ${e.name}</button>`).join('')}
+        </div>
+        <div class="mt-4 flex items-center gap-4">
+          <svg id="copeRing" viewBox="0 0 80 80" class="h-20 w-20 shrink-0 -rotate-90" aria-hidden="true">
+            <circle cx="40" cy="40" r="34" fill="none" stroke="#fde68a" stroke-width="7" opacity=".6"/>
+            <circle class="progress" cx="40" cy="40" r="34" fill="none" stroke="#f59e0b" stroke-width="7" stroke-linecap="round" stroke-dasharray="${RING_C}" stroke-dashoffset="0"/>
+            <text id="copeSecs" x="40" y="46" text-anchor="middle" transform="rotate(90 40 40)" class="fill-slate-700" style="font:800 18px 'Plus Jakarta Sans',sans-serif">60</text>
+          </svg>
+          <div class="min-w-0">
+            <p id="copeStepLabel" class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Ready when you are</p>
+            <p id="copeStepText" class="mt-1 text-sm font-semibold leading-snug text-slate-700" aria-live="polite">${ex.steps[0]}</p>
+          </div>
+        </div>
+        <ol id="copeSteps" class="mt-4 space-y-1.5 text-xs text-slate-500"></ol>
+        <button type="button" id="copeStart" data-action="cope-start" class="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-amber-700 shadow-sm transition hover:bg-amber-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300">▶ Start 60-second timer</button>
+      </article>`;
+    },
+
+    steady: it => `
+      <article class="rounded-3xl border border-petal bg-gradient-to-br from-white to-blush p-5">
+        <p class="text-[11px] font-extrabold uppercase tracking-widest text-pink-400">No active warnings</p>
+        <div class="mt-2 flex items-center justify-between gap-4">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-800">${it.trend === 'calmer' ? 'Skies are clearing ☁️→🌤️' : it.trend === 'busier' ? 'A little more active lately' : 'Holding steady 🌤️'}</h3>
+            <p class="mt-1 text-sm text-slate-500">7-day average: flare <b>${it.avgFlare}/10</b> · stress <b>${it.avgStress}/10</b></p>
+          </div>
+          ${sparkline(it.spark)}
+        </div>
+        <p class="mt-3 text-xs leading-relaxed text-slate-500">${it.trend === 'calmer' ? 'Your last 3 check-ins were calmer than the 3 before. Notice what you did differently.' : it.trend === 'busier' ? 'Your last 3 check-ins were more active than the 3 before — gentle routines and good sleep can help.' : 'No stress spikes or withdrawal loops detected. Keep logging to sharpen your forecast.'}</p>
+      </article>`,
+
+    unlock: it => `
+      <article class="rounded-3xl border border-dashed border-pink-200 bg-blush/60 p-5">
+        <p class="text-[11px] font-extrabold uppercase tracking-widest text-pink-400">Forecast warming up</p>
+        <h3 class="mt-2 text-base font-extrabold text-slate-800">${it.count === 0 ? 'Your forecast unlocks after 3 check-ins' : `${3 - it.count} more check-in${3 - it.count === 1 ? '' : 's'} to unlock your forecast`}</h3>
+        <p class="mt-1 text-sm text-slate-500">KindSkin looks for 48-hour stress-lag cycles and mirror-avoidance loops once it has a little history.</p>
+        <div class="mt-4 flex gap-2">${[0, 1, 2].map(i => `<span class="h-2.5 flex-1 rounded-full ${i < it.count ? 'bg-sky-400' : 'bg-pink-100'}"></span>`).join('')}</div>
+      </article>`
+  };
+
+  function renderForecast(flash = false) {
+    stopCope();
+    const items = analyzeTrends(state.logs, todayKey());
+    $('#forecastList').innerHTML = items.map(it => FORECAST_VIEWS[it.type](it)).join('');
+    $('#forecastUpdated').textContent = 'Updated ' + new Date(state.forecastUpdatedAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    if ($('[data-coping]')) { renderCopeTabs(); renderCopeUI(0, false); }
+    if (flash) {
+      const card = $('#forecastCard');
+      card.classList.remove('card-pulse'); void card.offsetWidth; card.classList.add('card-pulse');
+    }
+  }
+
+  function renderCopeTabs() {
+    $$('.cope-tab').forEach(b => {
+      const on = b.dataset.exercise === cope.exercise;
+      b.setAttribute('aria-selected', String(on));
+      b.classList.toggle('bg-amber-100', on); b.classList.toggle('text-amber-800', on); b.classList.toggle('text-slate-500', !on);
+    });
+  }
+
+  function renderCopeUI(elapsed, running) {
+    const ring = $('#copeRing circle.progress');
+    if (!ring) { stopCope(); return; }
+    const ex = EXERCISES[cope.exercise];
+    const idx = Math.min(3, Math.floor(elapsed / 15));
+    const done = elapsed >= 60;
+    ring.style.strokeDashoffset = String(RING_C * Math.min(1, elapsed / 60));
+    $('#copeSecs').textContent = String(Math.max(0, Math.ceil(60 - elapsed)));
+    $('#copeStepLabel').textContent = done ? 'Complete' : running ? `Step ${idx + 1} of 4 · ${ex.name}` : `Ready when you are · ${ex.name}`;
+    const text = done ? 'Done. That was 60 seconds of choosing something kinder. 💛' : ex.steps[idx];
+    const t = $('#copeStepText');
+    if (t.textContent !== text) t.textContent = text;
+    $('#copeSteps').innerHTML = ex.steps.map((s, i) => `
+      <li class="flex gap-2 ${running && i === idx && !done ? 'font-semibold text-slate-700' : done || (running && i < idx) ? 'text-slate-400 line-through decoration-amber-300' : ''}">
+        <span class="tabular-nums text-amber-600">${pad(i * 15)}s</span><span>${s}</span>
+      </li>`).join('');
+    const btn = $('#copeStart');
+    if (btn) btn.textContent = done ? '↺ Run it again' : running ? '■ Stop' : '▶ Start 60-second timer';
+  }
+
+  function stopCope() { if (cope.timer) { clearInterval(cope.timer); cope.timer = null; } }
+
+  function toggleCope() {
+    if (cope.timer) { stopCope(); renderCopeUI(0, false); return; }
+    cope.startedAt = performance.now();
+    let lastStep = -1;
+    cope.timer = setInterval(() => {
+      const el = (performance.now() - cope.startedAt) / 1000;
+      if (el >= 60) { stopCope(); renderCopeUI(60, false); toast('60 seconds done 💛 Nice work.'); return; }
+      const step = Math.floor(el / 15);
+      if (step !== lastStep) { lastStep = step; renderCopeUI(el, true); }
+      else { // cheap per-tick update: ring + seconds only
+        const ring = $('#copeRing circle.progress');
+        if (!ring) { stopCope(); return; }
+        ring.style.strokeDashoffset = String(RING_C * (el / 60));
+        $('#copeSecs').textContent = String(Math.ceil(60 - el));
+      }
+    }, 200);
+    renderCopeUI(0, true);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     RENDER · RECENT ENTRIES
+     ════════════════════════════════════════════════════════════ */
+  function renderRecent() {
+    const n = state.logs.length;
+    $('#recentCount').textContent = n ? `${n} ${n === 1 ? 'entry' : 'entries'}` : '';
+    const list = [...state.logs].reverse().slice(0, 6);
+    $('#recentList').innerHTML = list.length ? list.map(e => {
+      const tone = flareTone(e.flare), sel = e.date === state.selected;
+      const tags = [...e.symptoms, ...e.emotions];
+      return `
+        <li><button type="button" data-action="select-day" data-date="${e.date}" class="flex w-full items-center gap-3 rounded-2xl border p-2.5 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${sel ? 'border-sky-100 bg-sky-50/70' : 'border-transparent hover:border-petal hover:bg-blush/60'}">
+          <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-sm font-extrabold ${tone.cell}" aria-label="Flare ${e.flare}">${e.flare}</span>
+          <span class="min-w-0 flex-1">
+            <span class="flex items-center justify-between gap-2"><span class="text-sm font-bold text-slate-700">${relDay(e.date)}</span><span class="shrink-0 text-[11px] font-semibold text-slate-400">Stress ${e.stress}/10</span></span>
+            <span class="mt-0.5 block truncate text-xs text-slate-400">${tags.length ? esc(tags.join(' · ')) : 'No tags · ' + tone.label + ' day'}</span>
+          </span>
+        </button></li>`;
+    }).join('') : `<li class="rounded-2xl bg-blush/70 px-4 py-6 text-center text-sm text-slate-500">No check-ins yet. Your first one takes about a minute 🌸</li>`;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     MONTHLY REPORT
+     ════════════════════════════════════════════════════════════ */
+
+  /**
+   * Finds the stress level below which this person's skin tends to be calm.
+   * Powers the sentence: "Your skin feels calmest when your stress levels drop below X/10."
+   *
+   * @param {Array<{stress:number, flare:number}>} entries  this month's check-ins (both values are whole numbers 1–10)
+   * @returns {number|null}  a whole number 2–10 for "below X/10", or null when there isn't enough signal yet
+   *
+   * Helpful constants: CALM_FLARE_MAX (3) marks a calm skin day, ACTIVE_FLARE_MIN (6) an active flare day.
+   */
+  function computeCalmThreshold(entries) {
+    // TODO(human): turn stress/flare pairs into a single "calm below X" threshold.
+    return null;
+  }
+
+  function renderReport() {
+    const mk = state.reportMonth, nowMk = monthKey(todayKey());
+    const entries = state.logs.filter(l => monthKey(l.date) === mk);
+    $('#reportMonthLabel').textContent = monthLabel(mk);
+    $('#monthNext').disabled = mk >= nowMk;
+    $('#reportMeta').textContent = entries.length
+      ? `Auto-generated from ${entries.length} check-in${entries.length === 1 ? '' : 's'} stored privately on this device.`
+      : 'No check-ins logged this month yet.';
+    $('#demoBadge').classList.toggle('hidden', !entries.some(e => e.demo));
+
+    const body = $('#reportBody');
+    if (!entries.length) {
+      body.innerHTML = `
+        <section class="card p-8 text-center sm:p-12">
+          <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-blush text-3xl" aria-hidden="true">🗓️</div>
+          <h2 class="mt-4 text-lg font-extrabold text-slate-800">Nothing to report for ${monthLabel(mk)} yet</h2>
+          <p class="mx-auto mt-1 max-w-md text-sm text-slate-500">Your report builds itself from daily check-ins — symptoms, stress links and calm-vs-flare periods appear as soon as you log.</p>
+          <div class="mt-6 flex flex-wrap justify-center gap-2">
+            <button type="button" data-action="tab" data-tab="today" class="btn-sky">Log a check-in</button>
+            <button type="button" data-action="demo" class="btn-ghost">✨ Preview with a demo month</button>
+          </div>
+        </section>`;
+      return;
+    }
+    body.innerHTML = [
+      statTilesHTML(entries, mk),
+      `<div class="grid gap-6 lg:grid-cols-2">${symptomsCardHTML(entries)}${correlationCardHTML(entries)}</div>`,
+      calendarCardHTML(entries, mk),
+      emotionsCardHTML(entries)
+    ].join('');
+  }
+
+  function statTilesHTML(entries, mk) {
+    const elapsed = mk === monthKey(todayKey()) ? Number(todayKey().slice(8)) : daysInMonth(mk);
+    const aF = avg(entries.map(e => e.flare)), aS = avg(entries.map(e => e.stress));
+    const calm = entries.filter(e => e.flare <= CALM_FLARE_MAX).length;
+    const tiles = [
+      { label: 'Days logged', value: entries.length, sub: `of ${elapsed} days${mk === monthKey(todayKey()) ? ' so far' : ''}`, accent: 'bg-sky-50 text-sky-500', icon: '🗓️' },
+      { label: 'Avg flare', value: round1(aF), sub: `${flareTone(Math.round(aF)).label} overall`, accent: 'bg-pink-50 text-pink-500', icon: '🫧' },
+      { label: 'Avg stress', value: round1(aS), sub: band(aS, STRESS_LABELS), accent: 'bg-amber-50 text-amber-500', icon: '🎚️' },
+      { label: 'Calm days', value: calm, sub: `flare ≤ ${CALM_FLARE_MAX}/10`, accent: 'bg-sky-50 text-sky-500', icon: '🌤️' }
+    ];
+    return `<div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">${tiles.map((t, i) => `
+      <div class="card rise p-4 sm:p-5" style="animation-delay:${i * 60}ms">
+        <div class="flex items-center justify-between"><p class="text-xs font-bold text-slate-400">${t.label}</p><span class="grid h-8 w-8 place-items-center rounded-xl text-sm ${t.accent}" aria-hidden="true">${t.icon}</span></div>
+        <p class="mt-2 text-3xl font-extrabold tabular-nums tracking-tight text-slate-800">${t.value}</p>
+        <p class="mt-0.5 text-xs font-medium text-slate-500">${t.sub}</p>
+      </div>`).join('')}</div>`;
+  }
+
+  function symptomsCardHTML(entries) {
+    const n = entries.length;
+    const rows = SYMPTOMS.map(s => ({ ...s, count: entries.filter(e => e.symptoms.includes(s.label)).length })).sort((a, b) => b.count - a.count);
+    const sore = rows.find(r => r.label === 'Soreness/Deep Cysts').count;
+    const irr = rows.find(r => r.label === 'Active Skin Irritation').count;
+    const compare = sore === irr ? `Deep soreness and surface irritation showed up equally (${days(sore)} each).`
+      : sore > irr ? `Deep, sore spots outweighed surface irritation — ${days(sore)} vs. ${days(irr)}.`
+      : `Surface irritation was more common than deep soreness — ${days(irr)} vs. ${days(sore)}.`;
+    return `
+      <section class="card p-5 sm:p-7">
+        <p class="eyebrow">Physical</p>
+        <h2 class="mt-1 text-lg font-extrabold text-slate-800">Top Logged Physical Symptoms This Month</h2>
+        <ul class="mt-5 space-y-4">${rows.map((r, i) => `
+          <li>
+            <div class="flex items-center justify-between gap-3 text-sm">
+              <span class="flex min-w-0 items-center gap-2 font-semibold text-slate-700"><span aria-hidden="true">${r.emoji}</span><span class="truncate">${r.label}</span>
+                ${i === 0 && r.count > 0 ? '<span class="pill shrink-0 border border-amber-200/60 bg-amber-50 !text-[10px] uppercase tracking-wide text-amber-600">Most logged</span>' : ''}</span>
+              <span class="shrink-0 tabular-nums text-slate-500"><b class="text-slate-700">${r.count}</b> ${r.count === 1 ? 'day' : 'days'} · ${Math.round((r.count / n) * 100)}%</span>
+            </div>
+            <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-pink-50"><div class="bar-grow h-full rounded-full bg-gradient-to-r from-pink-300 to-rose-400" style="width:${(r.count / n) * 100}%;animation-delay:${i * 90}ms"></div></div>
+          </li>`).join('')}
+        </ul>
+        <p class="mt-5 rounded-2xl bg-blush px-4 py-3 text-xs leading-relaxed text-slate-600"><b>Soreness vs. Irritation:</b> ${compare}</p>
+      </section>`;
+  }
+
+  function meterHTML(label, sub, r, n) {
+    if (r === null) {
+      return `<div><p class="text-sm font-semibold text-slate-700">${label}</p><p class="mt-0.5 text-xs text-slate-400">${sub} · needs at least 3 paired days with some variation</p>
+        <div class="mt-3 h-2.5 rounded-full bg-slate-100"></div></div>`;
+    }
+    const a = Math.abs(r);
+    const strength = a < 0.2 ? 'Little to no link' : a < 0.4 ? 'Weak link' : a < 0.6 ? 'Moderate link' : 'Strong link';
+    const dir = a < 0.2 ? '' : r > 0 ? ' — higher stress, more active skin' : ' — higher stress, calmer skin (unusual)';
+    return `
+      <div>
+        <div class="flex items-baseline justify-between gap-3"><p class="text-sm font-semibold text-slate-700">${label}</p><p class="text-sm font-extrabold tabular-nums text-slate-700">r = ${r.toFixed(2)}</p></div>
+        <p class="mt-0.5 text-xs text-slate-400">${sub} · ${n} paired days</p>
+        <div class="relative mt-3 h-2.5 rounded-full bg-gradient-to-r from-sky-200 via-slate-100 to-rose-300">
+          <span class="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-slate-700 shadow transition-all duration-700" style="left:${((r + 1) / 2) * 100}%"></span>
+        </div>
+        <div class="mt-1.5 flex justify-between text-[10px] font-medium text-slate-400"><span>Opposite</span><span>No link</span><span>Move together</span></div>
+        <p class="mt-2 text-xs font-semibold text-slate-600">${strength}${dir}</p>
+      </div>`;
+  }
+
+  function correlationCardHTML(entries) {
+    const threshold = computeCalmThreshold(entries.map(e => ({ stress: e.stress, flare: e.flare })));
+    const map = logMap();
+    const same = entries.map(e => [e.stress, e.flare]);
+    const lag = entries.map(e => { const f = map.get(addDays(e.date, 2)); return f ? [e.stress, f.flare] : null; }).filter(Boolean);
+    const hi = entries.filter(e => e.stress >= HIGH_STRESS), lo = entries.filter(e => e.stress < HIGH_STRESS);
+    const hiF = hi.length ? round1(avg(hi.map(e => e.flare))) : null, loF = lo.length ? round1(avg(lo.map(e => e.flare))) : null;
+
+    const sentence = Number.isFinite(threshold)
+      ? `<p class="text-[17px] font-bold leading-snug text-slate-800">Your skin feels calmest when your stress levels drop below <span class="whitespace-nowrap rounded-lg bg-white px-2 py-0.5 text-amber-700 shadow-sm">${threshold}/10</span>.</p>`
+      : `<p class="text-[17px] font-bold leading-snug text-slate-800">Your skin feels calmest when your stress levels drop below <span class="whitespace-nowrap rounded-lg bg-white/70 px-2 py-0.5 text-amber-400">?/10</span></p>
+         <p class="mt-1.5 text-xs text-slate-500">Your personal calm threshold appears once there are enough calm and flare-up days to compare.</p>`;
+
+    return `
+      <section class="card p-5 sm:p-7">
+        <p class="eyebrow">Mind ↔ skin</p>
+        <h2 class="mt-1 text-lg font-extrabold text-slate-800">Emotional correlation indicator</h2>
+        <div class="mt-5 rounded-3xl border border-amber-200/50 bg-amber-50 p-5">
+          <p class="mb-2 text-[11px] font-extrabold uppercase tracking-widest text-amber-600">✦ Focus insight</p>
+          ${sentence}
+        </div>
+        <div class="mt-6 space-y-6">
+          ${meterHTML('Same-day stress ↔ flare', 'Stress and skin on the same day', pearson(same), same.length)}
+          ${meterHTML('Stress → flare 48h later', 'Tests the stress-lag cycle', pearson(lag), lag.length)}
+        </div>
+        ${hiF != null && loF != null ? `
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            ${miniStat(`Stress ≥ ${HIGH_STRESS} days`, `${hiF}/10`, `avg flare · ${days(hi.length)}`)}
+            ${miniStat(`Stress < ${HIGH_STRESS} days`, `${loF}/10`, `avg flare · ${days(lo.length)}`)}
+          </div>` : ''}
+        <p class="mt-4 text-[11px] leading-relaxed text-slate-400">Correlation (r, from −1 to +1) shows whether two things tend to move together in <i>your</i> logs. It is a pattern, not proof that one causes the other.</p>
+      </section>`;
+  }
+
+  function runsInMonth(mk, map, pred) {
+    let longest = 0, cur = 0, periods = 0;
+    for (let d = 1; d <= daysInMonth(mk); d++) {
+      const e = map.get(`${mk}-${pad(d)}`);
+      if (e && pred(e)) { cur++; if (cur === 1) periods++; longest = Math.max(longest, cur); } else cur = 0;
+    }
+    return { longest, periods };
+  }
+
+  function calendarCardHTML(entries, mk) {
+    const map = new Map(entries.map(e => [e.date, e]));
+    const [y, m] = mk.split('-').map(Number);
+    const lead = new Date(y, m - 1, 1).getDay();
+    const t = todayKey();
+    const weekdays = Array.from({ length: 7 }, (_, i) => new Date(2023, 0, 1 + i).toLocaleDateString(undefined, { weekday: 'short' }).slice(0, 2));
+    const cells = Array.from({ length: lead }, () => '<div aria-hidden="true"></div>');
+    for (let d = 1; d <= daysInMonth(mk); d++) {
+      const k = `${mk}-${pad(d)}`, e = map.get(k), future = k > t, isToday = k === t;
+      let cls, label;
+      if (e) { const tone = flareTone(e.flare); cls = tone.cell; label = `${fmtShort(k)}: flare ${e.flare}/10 (${tone.label}), stress ${e.stress}/10`; }
+      else if (future) { cls = 'bg-transparent text-slate-300'; label = `${fmtShort(k)}: upcoming`; }
+      else { cls = 'border border-dashed border-pink-200 bg-white text-slate-400'; label = `${fmtShort(k)}: not logged`; }
+      cells.push(`
+        <button type="button" data-action="open-date" data-date="${k}" ${future ? 'disabled' : ''} title="${esc(label)}" aria-label="${esc(label)}"
+          class="relative flex aspect-square flex-col items-start justify-between rounded-xl p-1.5 text-left text-xs font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 sm:rounded-2xl sm:p-2 ${cls} ${isToday ? 'ring-2 ring-sky-400 ring-offset-2' : ''} ${future ? 'cursor-default' : 'hover:-translate-y-0.5 hover:shadow-md'}">
+          <span>${d}</span>
+          ${e ? `<span class="hidden text-[10px] font-semibold opacity-70 sm:inline">${e.flare}/10</span>` : ''}
+          ${e && e.stress >= HIGH_STRESS ? '<span class="absolute right-1 top-1 h-2 w-2 rounded-full bg-amber-400 ring-2 ring-white sm:right-1.5 sm:top-1.5" aria-hidden="true"></span>' : ''}
+        </button>`);
+    }
+    const calm = runsInMonth(mk, map, e => e.flare <= CALM_FLARE_MAX);
+    const active = runsInMonth(mk, map, e => e.flare >= ACTIVE_FLARE_MIN);
+    return `
+      <section class="card p-5 sm:p-7">
+        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p class="eyebrow">Skin map</p>
+            <h2 class="mt-1 text-lg font-extrabold text-slate-800">Calm vs. active flare periods</h2>
+            <p class="mt-1 text-sm text-slate-500">Each day is coloured by flare intensity. Tap any logged day to open it.</p>
+          </div>
+          <div class="grid grid-cols-2 gap-3 md:w-80">
+            ${miniStat('Longest calm stretch', days(calm.longest), `flare ≤ ${CALM_FLARE_MAX}`)}
+            ${miniStat('Active flare periods', active.periods, `longest ${days(active.longest)}`)}
+          </div>
+        </div>
+        <div class="mx-auto mt-6 grid max-w-3xl grid-cols-7 gap-1.5 sm:gap-2.5">
+          ${weekdays.map(w => `<div class="pb-1 text-center text-[11px] font-bold uppercase text-slate-400">${w}</div>`).join('')}
+          ${cells.join('')}
+        </div>
+        <div class="mx-auto mt-5 flex max-w-3xl flex-wrap items-center gap-x-4 gap-y-2 text-[11px] font-medium text-slate-500">
+          <span class="inline-flex items-center gap-1.5"><span class="h-3.5 w-3.5 rounded-md bg-sky-100"></span>Calm (1–${CALM_FLARE_MAX})</span>
+          <span class="inline-flex items-center gap-1.5"><span class="h-3.5 w-3.5 rounded-md bg-pink-100"></span>Mild (${CALM_FLARE_MAX + 1}–${ACTIVE_FLARE_MIN - 1})</span>
+          <span class="inline-flex items-center gap-1.5"><span class="h-3.5 w-3.5 rounded-md bg-rose-200"></span>Active (${ACTIVE_FLARE_MIN}–7)</span>
+          <span class="inline-flex items-center gap-1.5"><span class="h-3.5 w-3.5 rounded-md bg-rose-300"></span>Intense (8–10)</span>
+          <span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>High-stress day</span>
+          <span class="inline-flex items-center gap-1.5"><span class="h-3.5 w-3.5 rounded-md border border-dashed border-pink-200 bg-white"></span>Not logged</span>
+        </div>
+      </section>`;
+  }
+
+  function emotionsCardHTML(entries) {
+    const n = entries.length;
+    const counts = EMOTIONS.map(e => ({ ...e, count: entries.filter(x => x.emotions.includes(e.label)).length })).sort((a, b) => b.count - a.count);
+    const withdrawalDays = entries.filter(e => e.emotions.some(t => WITHDRAWAL_TAGS.includes(t))).length;
+    const confident = entries.filter(e => e.emotions.includes('Feeling Confident'));
+    const confFlare = confident.length ? round1(avg(confident.map(e => e.flare))) : null;
+    const screen = entries.filter(e => e.screenTime != null);
+    const trig = TRIGGERS.filter(t => t !== 'No urge today').map(t => ({ t, c: entries.filter(e => e.triggers.includes(t)).length })).sort((a, b) => b.c - a.c)[0];
+    return `
+      <section class="card p-5 sm:p-7">
+        <p class="eyebrow">Emotional landscape</p>
+        <h2 class="mt-1 text-lg font-extrabold text-slate-800">How skin felt on the inside</h2>
+        <div class="mt-5 flex flex-wrap gap-2">${counts.map(c => `
+          <span class="inline-flex items-center gap-2 rounded-full border border-petal bg-blush/60 py-1.5 pl-3 pr-1.5 text-sm font-semibold text-slate-600">
+            <span aria-hidden="true">${c.emoji}</span>${c.label}
+            <span class="rounded-full bg-white px-2 py-0.5 text-xs font-extrabold tabular-nums text-slate-700">${c.count}</span>
+          </span>`).join('')}
+        </div>
+        <div class="mt-6 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-slate-600"><b class="text-slate-800">${withdrawalDays} of ${n}</b> days included mirror avoidance or picking urges.</div>
+          <div class="rounded-2xl bg-sky-50 px-4 py-3 text-sm text-slate-600">${confFlare != null ? `On <b class="text-slate-800">confident</b> days your average flare was <b class="text-slate-800">${confFlare}/10</b>.` : 'Tag “Feeling Confident” on good days to see what they have in common.'}</div>
+          <div class="rounded-2xl bg-blush px-4 py-3 text-sm text-slate-600">${screen.length ? `Avg screen time <b class="text-slate-800">${round1(avg(screen.map(e => e.screenTime)))}h</b>${trig && trig.c ? ` · top picking trigger: <b class="text-slate-800">${trig.t}</b>` : ''}.` : 'Screen-time and trigger insights unlock in Pattern mode (3-day streak).'}</div>
+        </div>
+        <p class="mt-5 rounded-2xl border border-dashed border-sky-200 px-4 py-3 text-xs leading-relaxed text-slate-500">🩺 <b>Seeing a doctor soon?</b> Print or screenshot this report — it's an easy way to share how acne is affecting more than just your skin.</p>
+      </section>`;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     SCENARIOS
+     ════════════════════════════════════════════════════════════ */
+  function renderScenarios() {
+    const prog = state.scenarioProgress;
+    const explored = SCENARIOS.filter(s => (prog[s.id] || []).length).length;
+    $('#scenarioProgressText').textContent = `${explored} of ${SCENARIOS.length} explored`;
+    $('#scenarioProgressBar').style.width = `${(explored / SCENARIOS.length) * 100}%`;
+    const root = $('#scenarioRoot');
+
+    if (!state.scenarioId) {
+      root.innerHTML = `<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">${SCENARIOS.map((s, i) => {
+        const paths = (prog[s.id] || []).length;
+        return `
+          <button type="button" data-action="open-scenario" data-id="${s.id}" class="card rise group flex flex-col p-5 text-left transition hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 sm:p-6" style="animation-delay:${i * 50}ms">
+            <div class="flex items-start justify-between gap-3">
+              <span class="grid h-12 w-12 place-items-center rounded-2xl bg-blush text-2xl transition group-hover:scale-110" aria-hidden="true">${s.emoji}</span>
+              ${paths ? `<span class="pill border border-sky-100 bg-sky-50 text-sky-600">✓ ${paths}/${s.choices.length} paths</span>` : '<span class="pill border border-petal bg-white text-slate-400">New</span>'}
+            </div>
+            <p class="mt-4 text-[11px] font-bold uppercase tracking-wider text-pink-400">${s.tag}</p>
+            <h3 class="mt-1 text-base font-extrabold leading-snug text-slate-800">${s.title}</h3>
+            <p class="mt-1.5 line-clamp-2 flex-1 text-sm text-slate-500">${s.setting}</p>
+            <span class="mt-4 text-sm font-bold text-sky-600">${paths ? 'Revisit' : 'Step in'} →</span>
+          </button>`;
+      }).join('')}</div>`;
+      return;
+    }
+
+    const s = SCENARIOS.find(x => x.id === state.scenarioId);
+    const visited = prog[s.id] || [];
+    root.innerHTML = `
+      <section class="card rise p-5 sm:p-8">
+        <button type="button" data-action="scenarios-home" class="btn-ghost -ml-3">← All scenarios</button>
+        <div class="mt-3 flex items-start gap-4">
+          <span class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-blush text-3xl" aria-hidden="true">${s.emoji}</span>
+          <div><p class="eyebrow">${s.tag}</p><h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-800">${s.title}</h2></div>
+        </div>
+        <p class="mt-5 rounded-2xl bg-blush px-4 py-3 text-sm leading-relaxed text-slate-600"><b class="text-slate-700">The scene:</b> ${s.setting}</p>
+        <div class="mt-5 space-y-3">${s.lines.map((l, i) => {
+          const inner = l.who.startsWith('You');
+          return `
+            <div class="bubble flex ${inner ? 'justify-end' : 'justify-start'}" style="animation-delay:${150 + i * 350}ms">
+              <div class="max-w-[85%] rounded-3xl px-4 py-3 ${inner ? 'rounded-br-lg bg-sky-50 text-sky-900' : 'rounded-bl-lg border border-petal bg-white text-slate-700 shadow-sm'}">
+                <p class="text-[11px] font-bold ${inner ? 'text-sky-500' : 'text-pink-400'}">${l.who}</p>
+                <p class="mt-0.5 text-sm leading-relaxed ${inner ? 'italic' : ''}">${l.text}</p>
+              </div>
+            </div>`;
+        }).join('')}</div>
+        <h3 class="mt-8 text-sm font-extrabold text-slate-700">What do you do?</h3>
+        <div class="mt-3 grid gap-3">${s.choices.map((c, i) => {
+          const seen = visited.includes(i), tone = TONES[c.tone];
+          return `
+            <button type="button" data-action="choose" data-index="${i}" class="choice bubble !items-start !p-4" style="animation-delay:${900 + i * 120}ms">
+              <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-blush text-sm font-extrabold text-pink-500">${String.fromCharCode(65 + i)}</span>
+              <span class="min-w-0 flex-1">
+                <span class="block text-sm font-semibold leading-relaxed text-slate-700">${c.label}</span>
+                ${seen ? `<span class="pill mt-2 ${tone.badge}">${tone.icon} ${tone.label}</span>` : ''}
+              </span>
+              <span class="mt-1 shrink-0 text-sky-500" aria-hidden="true">→</span>
+            </button>`;
+        }).join('')}</div>
+        <p class="mt-5 text-xs text-slate-400">Every option opens a reflection — there's no score, and you can explore all three.</p>
+      </section>`;
+  }
+
+  function openAdvice(idx) {
+    const s = SCENARIOS.find(x => x.id === state.scenarioId);
+    const c = s.choices[idx], tone = TONES[c.tone];
+    const list = state.scenarioProgress[s.id] || [];
+    if (!list.includes(idx)) { state.scenarioProgress[s.id] = [...list, idx]; persistScenarioProgress(); }
+    openModal(`
+      <div class="flex items-start justify-between gap-4">
+        <span class="pill ${tone.badge} !text-xs">${tone.icon} ${tone.label}</span>
+        <button type="button" data-action="modal-close" class="icon-btn !h-8 !w-8 !text-sm" aria-label="Close">✕</button>
+      </div>
+      <h2 id="modalTitle" class="mt-4 text-xl font-extrabold text-slate-800">${c.title}</h2>
+      <p class="mt-1 text-xs font-medium text-slate-400">${s.emoji} ${s.title} · You chose ${String.fromCharCode(65 + idx)}</p>
+      <p class="mt-4 text-sm leading-relaxed text-slate-600">${c.advice}</p>
+      <div class="mt-4 rounded-2xl bg-sky-50 px-4 py-3">
+        <p class="text-[11px] font-extrabold uppercase tracking-wider text-sky-600">Try this</p>
+        <p class="mt-1 text-sm text-slate-700">${c.skill}</p>
+      </div>
+      <div class="mt-4">
+        <p class="text-[11px] font-extrabold uppercase tracking-wider text-amber-600">Research evidence</p>
+        <div class="placeholder-box mt-2" data-evidence-slot="${s.id}-${String.fromCharCode(97 + idx)}">${esc(c.evidence)}</div>
+      </div>
+      <div class="mt-6 flex flex-wrap justify-end gap-2">
+        <button type="button" data-action="modal-close" class="btn-ghost">Try another choice</button>
+        <button type="button" data-action="scenarios-home" class="btn-sky">Back to all scenarios</button>
+      </div>`);
+    renderScenarios();
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     MODAL, TOAST, CONFIRM
+     ════════════════════════════════════════════════════════════ */
+  let lastFocus = null, confirmHandler = null;
+
+  function openModal(html) {
+    lastFocus = document.activeElement;
+    const m = $('#modal');
+    $('#modalPanel').innerHTML = html;
+    m.classList.remove('hidden');
+    m.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    const panel = $('#modalPanel');
+    panel.classList.remove('modal-in'); void panel.offsetWidth; panel.classList.add('modal-in');
+    requestAnimationFrame(() => ($('#modalPanel [data-action]') || panel).focus());
+  }
+
+  function closeModal() {
+    const m = $('#modal');
+    if (m.classList.contains('hidden')) return;
+    m.classList.add('hidden');
+    m.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    confirmHandler = null;
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+  }
+
+  function confirmModal({ title, body, confirmLabel, danger = false, onConfirm }) {
+    confirmHandler = onConfirm;
+    openModal(`
+      <h2 id="modalTitle" class="text-lg font-extrabold text-slate-800">${title}</h2>
+      <p class="mt-2 text-sm leading-relaxed text-slate-600">${body}</p>
+      <div class="mt-6 flex flex-wrap justify-end gap-2">
+        <button type="button" data-action="modal-close" class="btn-ghost">Cancel</button>
+        <button type="button" data-action="modal-confirm" class="${danger ? 'inline-flex items-center rounded-full bg-rose-500 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-rose-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300' : 'btn-solid'}">${confirmLabel}</button>
+      </div>`);
+  }
+
+  function toast(msg, kind = 'ok') {
+    const el = document.createElement('div');
+    el.className = `toast-in pointer-events-auto rounded-full px-5 py-3 text-sm font-semibold shadow-lg ${kind === 'warn' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-slate-800 text-white'}`;
+    el.textContent = msg;
+    $('#toastRoot').appendChild(el);
+    setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 320); }, 2800);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     DATA TOOLS · demo seed, export, reset
+     ════════════════════════════════════════════════════════════ */
+  function buildDemoLogs() {
+    const r = mulberry32(20261020);
+    const t = todayKey(), N = 42;
+    const spikes = new Set([2, 9, 10, 16, 23, 24, 30, 37]);   // exam-week style stress spikes (day 2 → live stress-lag demo)
+    const skips = new Set([19, 27, 33]);                       // realistic missed days
+    const notes = ['Chem test tomorrow 😬', 'Felt okay at practice', 'Skipped the mirror this morning', 'Slept badly', 'Good day with friends!', 'Tried not to pick — mostly worked'];
+    const stress = {};
+    for (let i = N + 2; i >= 1; i--) {
+      const s = spikes.has(i) ? 7.5 + r() * 2 : 4 + 2 * Math.sin(i / 3.2) + (r() * 2 - 1);
+      stress[addDays(t, -i)] = clamp(Math.round(s), 1, 10);
+    }
+    const out = [];
+    for (let i = N; i >= 1; i--) {
+      if (skips.has(i)) continue;
+      const date = addDays(t, -i), s = stress[date], s2 = stress[addDays(date, -2)];
+      const f = clamp(Math.round(1 + 0.75 * s2 + (r() * 2.4 - 1.2)), 1, 10);
+      const sy = [], em = [];
+      if (f >= 7 || (f >= 5 && r() < 0.4)) sy.push('Soreness/Deep Cysts');
+      if ((f >= 5 && r() < 0.8) || (f >= 3 && r() < 0.3)) sy.push('Active Skin Irritation');
+      if (r() < 0.3) sy.push('Flaking/Dryness');
+      if (f >= 4 && r() < 0.3) sy.push('Itching');
+      if (s >= 7 && r() < 0.8) em.push('Anxious/Overwhelmed');
+      if (f >= 6 && r() < 0.7) em.push('Avoiding Mirrors');
+      if ((f >= 5 && r() < 0.55) || i <= 2) em.push('Urge to Pick Skin');
+      if (f >= 6 && r() < 0.5) em.push('Social Discomfort');
+      if (f <= 3 && r() < 0.75) em.push('Feeling Confident');
+      const picking = em.includes('Urge to Pick Skin');
+      const triggers = picking
+        ? [TRIGGERS[Math.floor(r() * 5)], ...(s >= 7 ? ['Feeling Stressed'] : [])].filter((v, k, a) => a.indexOf(v) === k)
+        : r() < 0.6 ? ['No urge today'] : [];
+      out.push(normalizeEntry({
+        id: 'demo_' + date, date, createdAt: Date.now(), updatedAt: Date.now(),
+        symptoms: sy, emotions: [...new Set(em)], flare: f, stress: s,
+        screenTime: Math.round((1.5 + r() * 4 + (s >= 7 ? 1.5 : 0)) * 2) / 2,
+        triggers, note: r() < 0.25 ? notes[Math.floor(r() * notes.length)] : '',
+        mode: i <= N - 3 ? 'trends' : 'building', demo: true
+      }));
+    }
+    return out;
+  }
+
+  function loadDemo() {
+    const apply = () => {
+      state.logs = buildDemoLogs();
+      if (!persistLogs()) return;
+      state.forecastUpdatedAt = Date.now();
+      state.reportMonth = monthKey(todayKey());
+      closeModal();
+      refreshAll(true);
+      toast('Demo month loaded ✨ (synthetic, not research data)');
+    };
+    if (state.logs.length) {
+      confirmModal({ title: 'Replace your data with a demo month?', body: `This overwrites your ${state.logs.length} saved check-in${state.logs.length === 1 ? '' : 's'} with ~6 weeks of synthetic data. Export first if you want to keep them.`, confirmLabel: 'Load demo', danger: true, onConfirm: apply });
+    } else apply();
+  }
+
+  function exportData() {
+    const blob = new Blob([JSON.stringify({ app: 'KindSkin', version: 1, exportedAt: new Date().toISOString(), logs: state.logs }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), { href: url, download: `kindskin-logs-${todayKey()}.json` });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('Export ready ⬇');
+  }
+
+  function resetData() {
+    confirmModal({
+      title: 'Erase all KindSkin data?', body: 'This permanently deletes every check-in and scenario progress stored in this browser. This cannot be undone.',
+      confirmLabel: 'Erase everything', danger: true,
+      onConfirm: () => {
+        try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(SCENARIO_KEY); } catch { /* ignore */ }
+        state.logs = []; state.scenarioProgress = {}; state.scenarioId = null;
+        state.forecastUpdatedAt = Date.now();
+        closeModal(); refreshAll(); toast('All data erased.');
+      }
+    });
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     TABS, EVENTS, INIT
+     ════════════════════════════════════════════════════════════ */
+  function switchTab(name) {
+    state.tab = name;
+    ['today', 'report', 'scenarios'].forEach(t => {
+      $(`#tab-${t}`).hidden = t !== name;
+      $(`#tabbtn-${t}`).setAttribute('aria-selected', String(t === name));
+    });
+    if (name === 'today') requestAnimationFrame(syncViewportHeight);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function refreshAll(flash = false) {
+    state.stripCenter = todayKey();
+    openDate(todayKey());
+    renderHeader();
+    renderForecast(flash);
+    renderReport();
+    renderScenarios();
+  }
+
+  function toggleChip(el) {
+    const g = el.dataset.group, v = el.dataset.value;
+    let list = state.draft[g];
+    if (list.includes(v)) list = list.filter(x => x !== v);
+    else {
+      list = [...list, v];
+      if (g === 'triggers') list = v === 'No urge today' ? [v] : list.filter(x => x !== 'No urge today');
+    }
+    state.draft[g] = list;
+    $$(`[data-action="toggle"][data-group="${g}"]`).forEach(b => b.setAttribute('aria-pressed', String(list.includes(b.dataset.value))));
+  }
+
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el) {
+      if (e.target.id === 'modalWrap') closeModal();
+      return;
+    }
+    if (el.disabled) return;
+    const a = el.dataset.action;
+    switch (a) {
+      case 'tab': switchTab(el.dataset.tab); break;
+      case 'toggle': toggleChip(el); break;
+      case 'step-next':
+        if (state.step < state.steps.length - 1) { state.step++; updateStepUI(); } else saveCheckIn();
+        break;
+      case 'step-back': if (state.step > 0) { state.step--; updateStepUI(); } break;
+      case 'step-goto': state.step = Number(el.dataset.index); updateStepUI(); break;
+      case 'edit-entry': state.formView = 'steps'; state.step = 0; renderForm(); break;
+      case 'select-day': openDate(el.dataset.date); break;
+      case 'open-date': switchTab('today'); openDate(el.dataset.date); break;
+      case 'strip-prev': state.stripCenter = addDays(state.stripCenter, -7); renderStrip(); break;
+      case 'strip-next': { const n = addDays(state.stripCenter, 7), t = todayKey(); state.stripCenter = n > t ? t : n; renderStrip(); break; }
+      case 'strip-today': state.stripCenter = todayKey(); openDate(todayKey()); break;
+      case 'demo': loadDemo(); break;
+      case 'export': exportData(); break;
+      case 'reset': resetData(); break;
+      case 'month-prev': state.reportMonth = shiftMonth(state.reportMonth, -1); renderReport(); break;
+      case 'month-next': state.reportMonth = shiftMonth(state.reportMonth, 1); renderReport(); break;
+      case 'print': window.print(); break;
+      case 'open-scenario': state.scenarioId = el.dataset.id; renderScenarios(); window.scrollTo({ top: 0, behavior: 'smooth' }); break;
+      case 'scenarios-home': closeModal(); state.scenarioId = null; renderScenarios(); break;
+      case 'choose': openAdvice(Number(el.dataset.index)); break;
+      case 'modal-close': closeModal(); break;
+      case 'modal-confirm': if (confirmHandler) confirmHandler(); break;
+      case 'cope-tab': stopCope(); cope.exercise = el.dataset.exercise; renderCopeTabs(); renderCopeUI(0, false); break;
+      case 'cope-start': toggleCope(); break;
+    }
+  });
+
+  document.addEventListener('input', e => {
+    const t = e.target;
+    if (t.matches('input[data-field]')) {
+      const f = t.dataset.field, v = Number(t.value), c = SLIDERS[f];
+      state.draft[f] = v;
+      t.style.setProperty('--fill', fillPct(f, v) + '%');
+      t.setAttribute('aria-valuetext', sliderValueText(f, v));
+      $(`[data-readout="${f}"]`).textContent = v;
+      $(`[data-desc="${f}"]`).textContent = c.describe(v);
+    } else if (t.id === 'noteInput') {
+      state.draft.note = t.value.slice(0, 500);
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  let resizeT;
+  window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(syncViewportHeight, 100); });
+
+  // Keep multiple tabs in sync if the app is open twice.
+  window.addEventListener('storage', e => { if (e.key === STORAGE_KEY) { state.logs = loadLogs(); refreshAll(); } });
+
+  $('#year').textContent = new Date().getFullYear();
+  refreshAll();
+})();
+</script>
+</body>
+</html>
